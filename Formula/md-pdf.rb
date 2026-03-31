@@ -17,7 +17,7 @@ class MdPdf < Formula
   # url and sha256 are updated by the update-formula.sh script after each release.
   url "https://github.com/Moravio/md-pdf/releases/download/v2.0.0/moravio-md-pdf-2.0.0.tgz",
       using: :nounzip
-  sha256 "PLACEHOLDER"
+  sha256 "3b99c26d0ef11c2c09715ea7e26a072305feacb26607a8ee91082cacda304c07"
   license :cannot_represent
 
   depends_on "node@22"
