@@ -35,9 +35,9 @@ class MdPdf < Formula
 
     # Map each bin name to its JS entry-point inside the installed package.
     bins = {
-      "moravio-pdf"                => "convert-to-pdf.js",
-      "moravio-pdf-branding-check" => "scripts/branding-check.js",
-      "moravio-pdf-branding-init"  => "scripts/branding-init.js",
+      "md-pdf"                => "convert-to-pdf.js",
+      "md-pdf-branding-check" => "scripts/branding-check.js",
+      "md-pdf-branding-init"  => "scripts/branding-init.js",
     }
 
     bins.each do |cmd, script|
@@ -72,7 +72,7 @@ class MdPdf < Formula
 
   def caveats
     <<~EOS
-      moravio-pdf needs a Chromium-based browser for PDF rendering.
+      md-pdf needs a Chromium-based browser for PDF rendering.
       Install one of these if you haven't already:
 
         brew install --cask google-chrome
@@ -87,7 +87,7 @@ class MdPdf < Formula
     # Set a dummy Chrome path to bypass the wrapper's browser check —
     # the CLI prints usage and exits before Puppeteer is actually launched.
     ENV["PUPPETEER_EXECUTABLE_PATH"] = "/usr/bin/true"
-    output = shell_output("#{bin}/moravio-pdf 2>&1", 1)
-    assert_match "Usage: moravio-pdf", output
+    output = shell_output("#{bin}/md-pdf 2>&1", 1)
+    assert_match "Usage: md-pdf", output
   end
 end

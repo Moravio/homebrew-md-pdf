@@ -1,4 +1,4 @@
-# moravio-pdf
+# md-pdf
 
 CLI tool that converts Markdown into professionally branded PDFs with title pages, table of contents, Mermaid diagrams, syntax highlighting, and slide layouts.
 
@@ -82,7 +82,7 @@ function greet(name) {
 ### 2. Generate the PDF
 
 ```bash
-moravio-pdf report.md --open
+md-pdf report.md --open
 ```
 
 The PDF is written to the current directory and opened automatically.
@@ -90,7 +90,7 @@ The PDF is written to the current directory and opened automatically.
 ## CLI reference
 
 ```
-Usage: moravio-pdf <input.md> [output.pdf]
+Usage: md-pdf <input.md> [output.pdf]
 
 Options:
   -h, --help     Show help with full .meta.json field reference
@@ -120,10 +120,10 @@ Options:
 
 ### Missing .meta.json
 
-If the metadata file is missing, `moravio-pdf` will offer to create a template:
+If the metadata file is missing, `md-pdf` will offer to create a template:
 
 ```
-$ moravio-pdf report.md
+$ md-pdf report.md
 Error: Metadata file not found: /path/to/report.meta.json
 
 Create a template .meta.json? [Y/n]
@@ -135,7 +135,7 @@ Create your own branding with custom logo, colors, and fonts:
 
 ```bash
 # Scaffold a branding folder
-moravio-pdf-branding-init ./my-brand
+md-pdf-branding-init ./my-brand
 
 # Edit the files:
 #   my-brand/branding.json   — colors, fonts, margins
@@ -144,7 +144,7 @@ moravio-pdf-branding-init ./my-brand
 #   my-brand/footer-mark.svg — footer icon
 
 # Validate
-moravio-pdf-branding-check ./my-brand
+md-pdf-branding-check ./my-brand
 
 # Use it
 # In your .meta.json: "brandingDir": "./my-brand"
