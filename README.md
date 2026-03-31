@@ -97,6 +97,7 @@ Options:
   -v, --version  Show version
   --open         Open the PDF after generation
   --watch        Watch for changes and regenerate automatically
+  --spellcheck   Run spell check before PDF generation
 ```
 
 ### Metadata fields (.meta.json)
@@ -117,6 +118,7 @@ Options:
 | `toc` | No | `true`/`false` (default: `true`) — table of contents |
 | `branding` | No | Built-in branding id (default: `"moravio-default"`) |
 | `brandingDir` | No | Path to external branding folder |
+| `dictionary` | No | Array of extra words for `--spellcheck` |
 
 ### Missing .meta.json
 
@@ -149,6 +151,25 @@ md-pdf-branding-check ./my-brand
 # Use it
 # In your .meta.json: "brandingDir": "./my-brand"
 ```
+
+## Releasing a new version
+
+Release is automated via GitHub Actions. Steps:
+
+1. Bump `version` in `package.json` in the **md-pdf** repo
+2. Commit and push to `main`
+3. Tag and push: `git tag v3.2.0 && git push origin v3.2.0`
+4. The **Release** workflow (`.github/workflows/release.yml`) will:
+   - Run `npm run validate`
+   - Pack the tarball and create a GitHub Release in **md-pdf**
+   - Generate example PDFs
+   - Create a matching release in **homebrew-md-pdf** with the tarball + PDFs
+   - Update the Homebrew formula (`Formula/md-pdf.rb`) with the new URL and SHA256
+   - Sync `docs/markdown-authoring.md` to the tap repo
+
+No manual steps needed in the **homebrew-md-pdf** repo — everything is published automatically.
+
+**Requires:** `HOMEBREW_TAP_TOKEN` secret in the md-pdf repo (a GitHub PAT with `repo` scope for `Moravio/homebrew-md-pdf`).
 
 ## Updating
 
