@@ -1,19 +1,13 @@
-# Homebrew Tap — @moravio/md-pdf
+# Homebrew Tap — moravio-pdf
 
-Private [Homebrew](https://brew.sh) tap for installing
+[Homebrew](https://brew.sh) tap for installing
 [moravio-pdf](https://github.com/Moravio/md-pdf), a CLI that turns Markdown
 into branded PDFs.
 
 ## Installation
 
 ```bash
-# Authenticate Homebrew for private GitHub repos (one-time)
-export HOMEBREW_GITHUB_API_TOKEN="<your-token>"
-
-# Add the tap
-brew tap moravio/md-pdf https://github.com/Moravio/homebrew-md-pdf.git
-
-# Install
+brew tap moravio/md-pdf
 brew install md-pdf
 ```
 
@@ -42,9 +36,6 @@ moravio-pdf-branding-init ./my-brand       # scaffold a branding folder
 moravio-pdf-branding-check ./my-brand      # validate branding config
 ```
 
-See the [markdown authoring guide](https://github.com/Moravio/md-pdf/blob/main/docs/markdown-authoring.md)
-for document format, metadata, and branding options.
-
 ## Updating
 
 ```bash
@@ -54,25 +45,11 @@ brew upgrade md-pdf
 
 ## How it works
 
-- The formula installs `@moravio/md-pdf` from a GitHub Release tarball into
-  an isolated `libexec` prefix (no global `node_modules` pollution).
+- The formula installs `@moravio/md-pdf` from a release tarball hosted on
+  this repo into an isolated `libexec` prefix.
 - Puppeteer's bundled Chromium download is skipped — the wrapper scripts
   resolve your locally installed Chrome or Chromium instead.
 - Node.js 22 (LTS) is installed as a Homebrew dependency.
-
-## For maintainers
-
-After tagging a new release in `Moravio/md-pdf`:
-
-1. The [release workflow](https://github.com/Moravio/md-pdf/blob/main/.github/workflows/release.yml)
-   creates a GitHub Release with the npm tarball.
-2. Update the formula:
-   ```bash
-   cd /path/to/md-pdf
-   ./homebrew/update-formula.sh v2.1.0
-   ```
-3. Copy the updated formula here and push:
-   ```bash
-   cp /path/to/md-pdf/homebrew/Formula/md-pdf.rb Formula/
-   git add -A && git commit -m "Update md-pdf to v2.1.0" && git push
-   ```
+- The formula and release tarballs are updated automatically by the
+  [release workflow](https://github.com/Moravio/md-pdf/blob/main/.github/workflows/release.yml)
+  in the source repo whenever a new version is tagged.

@@ -3,8 +3,8 @@
 
 # Homebrew formula for @moravio/md-pdf
 #
-# Usage (private tap):
-#   brew tap moravio/md-pdf https://github.com/Moravio/homebrew-md-pdf.git
+# Usage:
+#   brew tap moravio/md-pdf
 #   brew install md-pdf
 #
 # Requires a Chromium-based browser (Google Chrome or Chromium) for PDF
@@ -14,8 +14,8 @@
 class MdPdf < Formula
   desc "CLI to turn Markdown into branded PDFs — title page, TOC, Mermaid, slides"
   homepage "https://github.com/Moravio/md-pdf"
-  # url and sha256 are updated by the update-formula.sh script after each release.
-  url "https://github.com/Moravio/md-pdf/releases/download/v2.0.0/moravio-md-pdf-2.0.0.tgz",
+  # url and sha256 are updated automatically by the release workflow.
+  url "https://github.com/Moravio/homebrew-md-pdf/releases/download/v2.0.0/moravio-md-pdf-2.0.0.tgz",
       using: :nounzip
   sha256 "3b99c26d0ef11c2c09715ea7e26a072305feacb26607a8ee91082cacda304c07"
   license :cannot_represent
