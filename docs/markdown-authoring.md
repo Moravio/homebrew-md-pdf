@@ -16,9 +16,7 @@ Official diagram reference: [Mermaid documentation](https://mermaid.js.org/).
 ## Required files
 
 - **`document.md`** — body content.
-- **`document.meta.json`** — title-page metadata (same basename as `.md`).
-
-Without `.meta.json` the command exits with an error.
+- **`document.meta.json`** — title-page metadata (same basename as `.md`). **Optional** — without it, md-pdf generates a simple PDF (no title page, TOC, or pagination). See **Simple mode** below.
 
 ## Metadata (`.meta.json`)
 
@@ -63,6 +61,7 @@ Minimal **document** metadata (no email, phone, or extra lines under the client)
 - **`layout`**: omit or `"document"` for a standard report; `"slides"` for a slide deck (different title page, A4 landscape, different PDF merge path).
 - **`language`**: `"en"` (default) or `"cs"`. Controls the **default date** format (when **`date`** is omitted or empty), **title-page labels** (Date, Author, Client, Presentation, …), and the **table of contents** heading (`Contents` vs `Obsah`).
 - **`pagination`**: optional boolean, default **`true`**. Set **`false`** to turn off **automatic** slide breaks in **`slides`** layout (content flows like a continuous document; manual `<div class="page-break"></div>` still works). In **`slides`** layout with **`false`**, the merged PDF has **no footer** (no **“n / total”** page strip or eagle logo). With **`false`**, the content PDF uses a **slightly smaller bottom margin** so the body can extend a bit lower. **`document`** layout keeps the usual footer; only the bottom-margin tweak applies when **`pagination`** is **`false`**.
+- **`titlePage`**: optional boolean, default **`true`**. Set **`false`** to **skip the title page entirely**. The PDF starts directly with the content. Branding CSS, TOC, and page numbering still work — page numbers start from 1 on the first content page. Useful for short documents, appendices, or when the title is included directly in the Markdown.
 - **`toc`**: optional boolean, default **`true`**. Set **`false`** in **`document`** layout to **skip the generated table of contents** — the PDF is **title page + body** only (no TOC pages or measurement pass). Ignored for **`slides`**. Page footers (**`n / total`** + eagle) behave like the normal document merge.
 - **`branding`**: optional string id, default **`moravio-default`**. Must match a folder `brandings/<id>/` **inside the installed package** with **`branding.json`** plus assets. Ignored when **`brandingDir`** is set. See **Branding** below.
 - **`brandingDir`**: optional string path to a **folder** that contains **`branding.json`** (and the SVG assets listed there). Resolved relative to the **directory of your `.meta.json`** file (not the shell’s current working directory). Absolute paths are allowed. When present, **`branding`** is ignored — use this from **another repository** so your brand is **not** stored under **`node_modules`**. See **External branding (consumer projects)** below.
@@ -142,14 +141,28 @@ The installed package includes **`brandings/`** (see **`package.json`** → **`f
 
 ## Layout, pagination, and TOC at a glance
 
-| Layout     | `pagination` | `toc`   | Auto slide breaks | Page footer (n/total + mark) | TOC generated | Bottom margin    |
-| ---------- | ------------ | ------- | ----------------- | ---------------------------- | ------------- | ---------------- |
-| `document` | `true`       | `true`  | n/a               | Yes                          | Yes           | Standard         |
-| `document` | `true`       | `false` | n/a               | Yes                          | No            | Standard         |
-| `document` | `false`      | `true`  | n/a               | Yes                          | Yes           | Slightly smaller |
-| `document` | `false`      | `false` | n/a               | Yes                          | No            | Slightly smaller |
-| `slides`   | `true`       | n/a     | Yes               | Yes                          | No            | Standard         |
-| `slides`   | `false`      | n/a     | No                | No                           | No            | Slightly smaller |
+| Layout     | `titlePage` | `pagination` | `toc`   | Auto slide breaks | Page footer (n/total + mark) | TOC generated | Bottom margin    |
+| ---------- | ----------- | ------------ | ------- | ----------------- | ---------------------------- | ------------- | ---------------- |
+| `document` | `true`      | `true`       | `true`  | n/a               | Yes (from p.2)               | Yes           | Standard         |
+| `document` | `true`      | `true`       | `false` | n/a               | Yes (from p.2)               | No            | Standard         |
+| `document` | `false`     | `true`       | `true`  | n/a               | Yes (from p.1)               | Yes           | Standard         |
+| `document` | `false`     | `true`       | `false` | n/a               | Yes (from p.1)               | No            | Standard         |
+| `document` | any         | `false`      | `true`  | n/a               | Yes                          | Yes           | Slightly smaller |
+| `document` | any         | `false`      | `false` | n/a               | Yes                          | No            | Slightly smaller |
+| `slides`   | `true`      | `true`       | n/a     | Yes               | Yes                          | No            | Standard         |
+| `slides`   | `false`     | `true`       | n/a     | Yes               | Yes (from p.1)               | No            | Standard         |
+| `slides`   | any         | `false`      | n/a     | No                | No                           | No            | Slightly smaller |
+
+### Simple mode (no `.meta.json`)
+
+When the `.meta.json` file is missing, md-pdf offers two choices:
+
+1. **Continue without it** — generates a simple PDF with default typography, no title page, TOC, or pagination
+2. **Create a `.meta.json` template** — for full control over branding and layout
+
+In non-interactive mode (CI/CD, pipes) or during `--watch` re-runs, simple mode is used automatically.
+
+Example: `examples/simple/simple-document.md` (no sibling `.meta.json`).
 
 ## Layout: document vs slides
 
@@ -235,7 +248,12 @@ Quick test from the repo root:
 
 ```bash
 node ./convert-to-pdf.js examples/document/sample-document.md
+node ./convert-to-pdf.js examples/document/no-title-page.md
+node ./convert-to-pdf.js examples/simple/simple-document.md
 node ./convert-to-pdf.js examples/slides/sample-slides.md
 ```
+
+- **`examples/document/no-title-page.md`** — document with `"titlePage": false` (no title page, TOC and pagination still active).
+- **`examples/simple/simple-document.md`** — Markdown without `.meta.json` (simple mode — no title page, TOC, or pagination).
 
 Default output is `<basename>.pdf` next to the input `.md`.
