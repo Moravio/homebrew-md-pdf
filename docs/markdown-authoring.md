@@ -323,7 +323,9 @@ gantt
 | `useMaxWidth`     | boolean           | Scale to available width (default: true)          |
 | `weekday`         | string            | Start day of week (`monday`, `sunday`, etc.)      |
 
-> **Note:** There is no `locale` option. Month/day names on the axis are always in English. Use `axisFormat` to customize the date format.
+> **Locale:** Mermaid has no built-in `locale` option, but md-pdf **automatically translates** month abbreviations on the gantt axis based on the `language` field in `.meta.json` (currently `en` and `cs`). Use `tickInterval 1month` in the gantt definition to avoid repeated labels.
+
+> **Tip:** Always add `tickInterval 1month` (or `1week`) when using `axisFormat %b` to ensure clean one-label-per-interval axis.
 
 Other diagram types also support per-diagram config. See the [Mermaid configuration docs](https://mermaid.js.org/config/schema-docs/config.html) for the full list.
 
