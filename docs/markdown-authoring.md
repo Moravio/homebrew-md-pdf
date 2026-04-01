@@ -283,6 +283,50 @@ flowchart TD
 </div>
 ````
 
+### Per-diagram configuration
+
+Mermaid supports YAML frontmatter inside the code block to override defaults per diagram. The config block goes between `---` markers before the diagram type keyword:
+
+````markdown
+```mermaid
+---
+config:
+  gantt:
+    fontSize: 14
+    barHeight: 28
+    sectionFontSize: 14
+---
+gantt
+    title Project timeline
+    dateFormat YYYY-MM-DD
+    axisFormat %b
+    section Phase 1
+    Task A :a1, 2026-01-01, 30d
+```
+````
+
+**Available gantt config options:**
+
+| Option            | Type              | Description                                       |
+| ----------------- | ----------------- | ------------------------------------------------- |
+| `fontSize`        | number            | Font size for axis labels and task text           |
+| `sectionFontSize` | string \| number  | Font size for section headers                     |
+| `barHeight`       | number            | Height of task bars (px)                          |
+| `barGap`          | number            | Gap between bars (px)                             |
+| `topPadding`      | number            | Margin between title and diagram                  |
+| `leftPadding`     | number            | Space for section names on the left               |
+| `rightPadding`    | number            | Space for section names on the right              |
+| `titleTopMargin`  | number            | Margin above the title                            |
+| `axisFormat`      | string            | Date format on axis (`%b`, `%d. %m.`, `%Y-%m-%d`) |
+| `tickInterval`    | string            | Axis tick spacing (e.g. `1month`, `1week`)        |
+| `displayMode`     | `""` \| `compact` | Compact layout with overlapping tasks             |
+| `useMaxWidth`     | boolean           | Scale to available width (default: true)          |
+| `weekday`         | string            | Start day of week (`monday`, `sunday`, etc.)      |
+
+> **Note:** There is no `locale` option. Month/day names on the axis are always in English. Use `axisFormat` to customize the date format.
+
+Other diagram types also support per-diagram config. See the [Mermaid configuration docs](https://mermaid.js.org/config/schema-docs/config.html) for the full list.
+
 ## Markdown and HTML — what usually works
 
 Typical **GFM** behavior via **marked** (tables with `gfm`, lists, links, images, `**bold**`, `*italic*`, inline code, fenced code).

@@ -15,9 +15,9 @@ class MdPdf < Formula
   desc "CLI to turn Markdown into branded PDFs — title page, TOC, Mermaid, slides"
   homepage "https://github.com/Moravio/md-pdf"
   # url and sha256 are updated automatically by the release workflow.
-  url "https://github.com/Moravio/homebrew-md-pdf/releases/download/v3.5.4/moravio-md-pdf-3.5.4.tgz",
+  url "https://github.com/Moravio/homebrew-md-pdf/releases/download/v3.5.5/moravio-md-pdf-3.5.5.tgz",
       using: :nounzip
-  sha256 "c59b281788cccf59c21de678c34e543cc42790bffa6d846ae26683c25a16d91a"
+  sha256 "e698b2fe00c966d4a4283379cdce067f19ca3e0a75749dcaa3013d868b3daaeb"
   license :cannot_represent
 
   depends_on "node@22"
