@@ -230,29 +230,37 @@ Works in document and slides mode. For slides: if at least one such block exists
 
 Diagrams are automatically constrained to **`max-height: 200mm`** in document layout and **`106mm`** in slides. Tall vertical diagrams (e.g. `flowchart TD` with many nodes) scale down automatically to fit within a page.
 
-To control size manually, wrap the Mermaid block in a `<div>` with a size class:
+To control size manually, wrap the Mermaid block in a `<div>` with size classes. Classes follow a Tailwind-like naming convention.
 
-**Height classes** (controls `max-height`):
+**Height classes** (`mermaid-h{mm}`) — absolute millimeters, reliable in print CSS:
 
-| Class            | Document | Slides   |
-| ---------------- | -------- | -------- |
-| `mermaid-small`  | 80mm     | 50mm     |
-| `mermaid-medium` | 130mm    | 80mm     |
-| `mermaid-large`  | 200mm    | 106mm    |
-| `mermaid-full`   | no limit | no limit |
+| Class            | max-height |
+| ---------------- | ---------- |
+| `mermaid-h20`    | 20mm       |
+| `mermaid-h40`    | 40mm       |
+| `mermaid-h60`    | 60mm       |
+| `mermaid-h80`    | 80mm       |
+| `mermaid-h100`   | 100mm      |
+| `mermaid-h120`   | 120mm      |
+| `mermaid-h160`   | 160mm      |
+| `mermaid-h200`   | 200mm      |
+| `mermaid-h-auto` | no limit   |
 
-**Width classes** (controls `max-width`):
+**Width classes** (`mermaid-w{%}`) — percentage of content area:
 
-| Class         | Effect |
-| ------------- | ------ |
-| `mermaid-w25` | 25%    |
-| `mermaid-w50` | 50%    |
-| `mermaid-w75` | 75%    |
+| Class          | max-width |
+| -------------- | --------- |
+| `mermaid-w25`  | 25%       |
+| `mermaid-w33`  | 33%       |
+| `mermaid-w50`  | 50%       |
+| `mermaid-w66`  | 66%       |
+| `mermaid-w75`  | 75%       |
+| `mermaid-w100` | 100%      |
 
 Classes can be combined. Example:
 
 ````markdown
-<div class="mermaid-small mermaid-w50">
+<div class="mermaid-h80 mermaid-w50">
 
 ```mermaid
 flowchart TD
@@ -262,19 +270,18 @@ flowchart TD
 </div>
 ````
 
-For inline size control, you can also use a `style` attribute:
+For one-off sizes outside the predefined steps, use a `style` attribute:
 
 ````markdown
-<div style="max-height: 100mm; text-align: center;">
+<div style="text-align: center;">
 
 ```mermaid
 flowchart TD
     A --> B --> C
 ```
-````
 
 </div>
-```
+````
 
 ## Markdown and HTML — what usually works
 
