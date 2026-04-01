@@ -226,6 +226,56 @@ Works in document and slides mode. For slides: if at least one such block exists
 
 4. Do not rely on raw `<div class="mermaid">` without prerender — this package expects pre-generated SVG from the workflow above.
 
+### Controlling diagram size
+
+Diagrams are automatically constrained to **`max-height: 200mm`** in document layout and **`106mm`** in slides. Tall vertical diagrams (e.g. `flowchart TD` with many nodes) scale down automatically to fit within a page.
+
+To control size manually, wrap the Mermaid block in a `<div>` with a size class:
+
+**Height classes** (controls `max-height`):
+
+| Class            | Document | Slides   |
+| ---------------- | -------- | -------- |
+| `mermaid-small`  | 80mm     | 50mm     |
+| `mermaid-medium` | 130mm    | 80mm     |
+| `mermaid-large`  | 200mm    | 106mm    |
+| `mermaid-full`   | no limit | no limit |
+
+**Width classes** (controls `max-width`):
+
+| Class         | Effect |
+| ------------- | ------ |
+| `mermaid-w25` | 25%    |
+| `mermaid-w50` | 50%    |
+| `mermaid-w75` | 75%    |
+
+Classes can be combined. Example:
+
+````markdown
+<div class="mermaid-small mermaid-w50">
+
+```mermaid
+flowchart TD
+    A --> B --> C --> D
+```
+
+</div>
+````
+
+For inline size control, you can also use a `style` attribute:
+
+````markdown
+<div style="max-height: 100mm; text-align: center;">
+
+```mermaid
+flowchart TD
+    A --> B --> C
+```
+````
+
+</div>
+```
+
 ## Markdown and HTML — what usually works
 
 Typical **GFM** behavior via **marked** (tables with `gfm`, lists, links, images, `**bold**`, `*italic*`, inline code, fenced code).
