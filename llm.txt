@@ -1,0 +1,425 @@
+# md-pdf — LLM reference
+
+> This file is designed for large language models assisting users with md-pdf.
+> Canonical URL: https://raw.githubusercontent.com/Moravio/homebrew-md-pdf/main/llm.txt
+> Version: 3.5.9
+
+md-pdf is a CLI tool that converts Markdown files into professionally branded
+PDFs with title pages, table of contents, Mermaid diagrams, syntax highlighting,
+and slide layouts.
+
+Install: `brew tap moravio/md-pdf && brew install md-pdf`
+Requires: Node.js 18+, Chromium-based browser (e.g. Google Chrome).
+
+---
+
+## CLI usage
+
+```
+md-pdf <input.md> [output.pdf]
+```
+
+Arguments:
+- `input.md`  — path to the Markdown source file (required)
+- `output.pdf` — output path (optional, defaults to `<basename>.pdf` in cwd)
+
+Options:
+- `-h, --help`    — show help
+- `-v, --version` — show version
+- `--open`        — open the generated PDF after conversion
+- `--watch`       — watch .md and .meta.json for changes, regenerate on save
+- `--spellcheck`  — run spell check before PDF generation (language from .meta.json)
+
+Other commands:
+- `md-pdf-branding-init <dir>`  — scaffold a new branding folder
+- `md-pdf-branding-check <dir>` — validate a branding folder
+
+---
+
+## File structure
+
+Each document consists of:
+1. `document.md` — the Markdown body content
+2. `document.meta.json` — metadata file (same basename, optional)
+
+When `.meta.json` is missing, md-pdf generates a simple PDF with no title page,
+TOC, or pagination. When present, full branding and layout features are enabled.
+
+---
+
+## Metadata (.meta.json)
+
+### Required fields
+
+| Field      | Type   | Description                           |
+|------------|--------|---------------------------------------|
+| `title`    | string | Document title (shown on title page)  |
+| `layout`   | string | `"document"` or `"slides"`            |
+| `language` | string | `"en"` or `"cs"`                      |
+
+### Optional fields
+
+| Field          | Type    | Default            | Description                                                |
+|----------------|---------|--------------------|------------------------------------------------------------|
+| `subtitle`     | string  | —                  | Subtitle text                                              |
+| `author`       | string  | —                  | Author name                                                |
+| `client`       | string  | —                  | Client or organization                                     |
+| `email`        | string  | —                  | Contact email (shown on title page as mailto link)         |
+| `phoneNumber`  | string  | —                  | Contact phone (shown on title page as tel link)            |
+| `date`         | string  | today's date       | Explicit date string; localized by `language` when omitted |
+| `customFields` | object  | —                  | Label → value pairs rendered below client on title page    |
+| `titlePage`    | boolean | `true`             | Set `false` to skip the title page entirely                |
+| `pagination`   | boolean | `true`             | Page numbers and auto slide breaks                         |
+| `toc`          | boolean | `true`             | Auto-generated table of contents (document layout only)    |
+| `branding`     | string  | `"moravio-default"`| Built-in branding id                                       |
+| `brandingDir`  | string  | —                  | Path to external branding folder (overrides `branding`)    |
+| `dictionary`   | array   | —                  | Extra words for `--spellcheck`                             |
+
+### Minimal document example
+
+```json
+{
+  "title": "Project Report",
+  "subtitle": "Q1 2026",
+  "author": "Jane Doe",
+  "layout": "document",
+  "language": "en"
+}
+```
+
+### Minimal slides example
+
+```json
+{
+  "title": "Sprint Review",
+  "layout": "slides",
+  "language": "en"
+}
+```
+
+### Full example with all fields
+
+```json
+{
+  "title": "Architecture Overview",
+  "subtitle": "System Design v2",
+  "date": "15 April 2026",
+  "author": "Martin Kratochvíl",
+  "email": "martin@moravio.cz",
+  "phoneNumber": "+420 530 332 221",
+  "client": "Acme Corp",
+  "customFields": {
+    "Project ID": "ACME-2026-042",
+    "Classification": "Internal"
+  },
+  "layout": "document",
+  "language": "en",
+  "pagination": true,
+  "toc": true,
+  "titlePage": true,
+  "branding": "moravio-default"
+}
+```
+
+---
+
+## Layout: document vs slides
+
+### Document layout (`"layout": "document"`)
+- A4 portrait
+- Title page → Table of contents → Body content
+- Page numbers and footer logo on every page (except title page)
+- TOC auto-generated from `#`, `##`, `###` headings (disable with `"toc": false`)
+- Headings converted to clickable anchors in PDF
+
+### Slides layout (`"layout": "slides"`)
+- A4 landscape, larger typography
+- Title page → Slide content (no TOC)
+- With `"pagination": true` (default):
+  - Automatic page breaks before each boundary heading (`#` or `##`)
+  - If file has `#` headings, those are boundaries; otherwise `##` is used
+  - `###` headings never trigger automatic breaks
+  - Manual `<div class="page-break"></div>` blocks coexist with auto breaks:
+    auto-injection still fires at heading boundaries where no manual break exists
+- With `"pagination": false`:
+  - No automatic breaks; only manual `<div class="page-break"></div>` works
+  - No page footer (no "n / total" strip)
+  - Slightly smaller bottom margin
+
+---
+
+## Markdown syntax
+
+Standard GitHub Flavored Markdown (GFM) via marked 9.x:
+- **Bold**, *italic*, ~~strikethrough~~, `inline code`
+- Tables, ordered/unordered lists, blockquotes
+- Fenced code blocks with syntax highlighting (highlight.js 11.x)
+- Images (relative paths resolved from .md file directory)
+- Links, horizontal rules (hidden in print CSS)
+
+### YAML front matter
+
+```markdown
+---
+title: Internal note
+---
+```
+
+Front matter is **stripped** before processing — it never appears in the PDF.
+Use `.meta.json` for all metadata, not front matter.
+
+---
+
+## Page breaks
+
+Insert a page break anywhere using:
+
+```html
+<div class="page-break"></div>
+```
+
+This works in both document and slides layouts.
+
+In slides with `pagination: true`: manual page breaks and automatic heading
+breaks coexist. You can place manual breaks mid-slide to split long content,
+and the tool still auto-injects breaks at heading boundaries.
+
+---
+
+## Mermaid diagrams
+
+Fenced `mermaid` blocks are pre-rendered to static SVG before PDF generation.
+All Mermaid diagram types are supported (Mermaid 11.x).
+
+````markdown
+```mermaid
+flowchart LR
+  A[Input] --> B[Process] --> C[Output]
+```
+````
+
+### Diagram size control
+
+Wrap the mermaid block in a `<div>` with size classes:
+
+Height classes (millimeters):
+- `mermaid-h20`, `mermaid-h40`, `mermaid-h60`, `mermaid-h80`
+- `mermaid-h100`, `mermaid-h120`, `mermaid-h160`, `mermaid-h200`
+- `mermaid-h-auto` (no limit)
+
+Width classes (percentage of content area):
+- `mermaid-w25`, `mermaid-w33`, `mermaid-w50`
+- `mermaid-w66`, `mermaid-w75`, `mermaid-w100`
+
+Example:
+````markdown
+<div class="mermaid-h80 mermaid-w50">
+
+```mermaid
+flowchart TD
+    A --> B --> C
+```
+
+</div>
+````
+
+### Per-diagram configuration
+
+Use YAML frontmatter inside the mermaid block:
+
+````markdown
+```mermaid
+---
+config:
+  gantt:
+    fontSize: 14
+    barHeight: 28
+---
+gantt
+    title Timeline
+    dateFormat YYYY-MM-DD
+    section Phase 1
+    Task A :a1, 2026-01-01, 30d
+```
+````
+
+Gantt month labels are automatically localized based on `language` in .meta.json.
+
+---
+
+## CSS utility classes
+
+| Class                  | Effect                                         |
+|------------------------|-------------------------------------------------|
+| `page-break`           | Force a page break (`<div class="page-break">`) |
+| `space`                | Insert 20mm vertical space                      |
+| `mermaid-h{N}`         | Set diagram max-height to N mm                  |
+| `mermaid-w{N}`         | Set diagram max-width to N%                     |
+| `mermaid-h-auto`       | Remove diagram height limit                     |
+
+---
+
+## Custom branding
+
+### Using external branding (recommended for consumer projects)
+
+```bash
+# 1. Scaffold
+md-pdf-branding-init ./my-brand
+
+# 2. Edit files:
+#    my-brand/branding.json    — colors, fonts, margins
+#    my-brand/logo.svg         — header logo
+#    my-brand/decoration.svg   — title page decoration
+#    my-brand/footer-mark.svg  — footer icon
+
+# 3. Validate
+md-pdf-branding-check ./my-brand
+
+# 4. Reference in .meta.json (path relative to .meta.json location):
+#    "brandingDir": "./my-brand"
+```
+
+### branding.json structure (version 1)
+
+| Section          | Purpose                                                        |
+|------------------|----------------------------------------------------------------|
+| `version`, `id`  | Must be `1` and match the folder name                         |
+| `assets`         | `logo`, `decoration`, `footerMark` — SVG paths                |
+| `fonts`          | `sansStack`, `monoStack`, `fontCssDocument`, `fontCssSlides`   |
+| `contentMargins` | `document`/`slides` with `paginationOn`/`paginationOff`        |
+| `contentCss`     | CSS variables for colors, sizes (camelCase → --brand-kebab)    |
+| `footer`         | Page footer settings (margins, font size, mark height)         |
+| `toc`            | Table of contents styling (margins, colors, typography)        |
+| `titlePage`      | `document`/`slides` layout with inline style strings           |
+
+---
+
+## Layout, pagination, and TOC combinations
+
+| Layout     | titlePage | pagination | toc     | Auto breaks | Footer   | TOC       |
+|------------|-----------|------------|---------|-------------|----------|-----------|
+| `document` | `true`    | `true`     | `true`  | n/a         | Yes      | Yes       |
+| `document` | `true`    | `true`     | `false` | n/a         | Yes      | No        |
+| `document` | `false`   | `true`     | `true`  | n/a         | Yes      | Yes       |
+| `document` | any       | `false`    | any     | n/a         | Yes      | as set    |
+| `slides`   | `true`    | `true`     | n/a     | Yes         | Yes      | No        |
+| `slides`   | any       | `false`    | n/a     | No          | No       | No        |
+
+---
+
+## Common tasks — quick reference
+
+### Generate a simple PDF (no metadata)
+```bash
+md-pdf notes.md
+```
+
+### Generate a branded document
+```bash
+md-pdf report.md --open
+```
+(requires `report.meta.json` next to `report.md`)
+
+### Watch mode for iterating
+```bash
+md-pdf report.md --watch --open
+```
+
+### Slides with auto page breaks
+Create `slides.meta.json`:
+```json
+{
+  "title": "Team Update",
+  "layout": "slides",
+  "language": "en"
+}
+```
+Write `slides.md` with `##` headings as slide boundaries:
+```markdown
+## Agenda
+
+- Item 1
+- Item 2
+
+## Progress
+
+We completed X, Y, Z.
+
+## Next steps
+
+Action items here.
+```
+Each `##` becomes a new slide automatically.
+
+### Slides with mixed manual + auto breaks
+Use `<div class="page-break"></div>` to split a slide mid-content.
+Auto breaks still fire at heading boundaries:
+```markdown
+## Architecture
+
+Table and text here...
+
+<div class="page-break"></div>
+
+Diagram on its own page.
+
+## Summary
+
+Wrap-up slide (auto break before this ##).
+```
+
+### Document without title page
+```json
+{
+  "title": "Appendix",
+  "layout": "document",
+  "language": "en",
+  "titlePage": false
+}
+```
+
+### Document without TOC
+```json
+{
+  "title": "Short Brief",
+  "layout": "document",
+  "language": "en",
+  "toc": false
+}
+```
+
+### Czech document
+```json
+{
+  "title": "Projektová zpráva",
+  "subtitle": "Q1 2026",
+  "author": "Jan Novák",
+  "client": "Klient s.r.o.",
+  "layout": "document",
+  "language": "cs"
+}
+```
+
+---
+
+## Troubleshooting
+
+| Problem | Solution |
+|---------|----------|
+| "Metadata file not found" | Create a `.meta.json` with same basename as `.md`, or let md-pdf generate a simple PDF |
+| Mermaid diagram missing | Check diagram syntax; errors print to console |
+| PDF looks different locally vs CI | Ensure same Chrome/Chromium version; use local fonts (`fontCss…`) |
+| Spell check false positives | Add words to `"dictionary"` array in `.meta.json` |
+| Custom brand not working | Run `md-pdf-branding-check ./path` to validate |
+| Page break not working | Use exactly `<div class="page-break"></div>` on its own line |
+| Slides have no page numbers | Set `"pagination": true` in `.meta.json` |
+
+---
+
+## Project links
+
+- Homebrew tap: https://github.com/Moravio/homebrew-md-pdf
+- Source code: https://github.com/Moravio/md-pdf (private)
+- Full authoring guide: https://github.com/Moravio/homebrew-md-pdf/blob/main/docs/markdown-authoring.md
+- Example PDFs: https://github.com/Moravio/homebrew-md-pdf/releases/latest

@@ -207,7 +207,7 @@ On its own line:
 <div class="page-break"></div>
 ```
 
-Works in document and slides mode. For slides: if at least one such block exists, **automatic** splitting by `#` / `##` is disabled; trailing “hanging” `page-break` blocks at the end of the file are trimmed.
+Works in document and slides mode. In slides with **`pagination: true`**, manual page breaks and automatic heading breaks coexist: the tool still auto-injects breaks at heading boundaries where no manual break already exists. Trailing “hanging” `page-break` blocks at the end of the file are trimmed.
 
 ## Mermaid diagrams
 
