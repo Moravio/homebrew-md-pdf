@@ -2,7 +2,7 @@
 
 > This file is designed for large language models assisting users with md-pdf.
 > Canonical URL: https://raw.githubusercontent.com/Moravio/homebrew-md-pdf/main/llm.txt
-> Version: 3.5.9
+> Version: 3.5.10
 
 md-pdf is a CLI tool that converts Markdown files into professionally branded
 PDFs with title pages, table of contents, Mermaid diagrams, syntax highlighting,
@@ -131,6 +131,10 @@ TOC, or pagination. When present, full branding and layout features are enabled.
 - Page numbers and footer logo on every page (except title page)
 - TOC auto-generated from `#`, `##`, `###` headings (disable with `"toc": false`)
 - Headings converted to clickable anchors in PDF
+- `#` lines inside fenced code blocks (``` or `~~~`, max 3-space indent),
+  HTML comments (`<!-- ... -->`), and raw-text HTML blocks (`<script>`,
+  `<pre>`, `<style>`, `<textarea>`) are NOT extracted — shell comments,
+  preprocessor directives, etc. stay out of the TOC
 
 ### Slides layout (`"layout": "slides"`)
 - A4 landscape, larger typography
@@ -139,6 +143,8 @@ TOC, or pagination. When present, full branding and layout features are enabled.
   - Automatic page breaks before each boundary heading (`#` or `##`)
   - If file has `#` headings, those are boundaries; otherwise `##` is used
   - `###` headings never trigger automatic breaks
+  - `#` lines inside code fences, HTML comments, or `<script>`/`<pre>`/
+    `<style>`/`<textarea>` blocks never trigger breaks either
   - Manual `<div class="page-break"></div>` blocks coexist with auto breaks:
     auto-injection still fires at heading boundaries where no manual break exists
 - With `"pagination": false`:
@@ -292,6 +298,12 @@ md-pdf-branding-check ./my-brand
 | `footer`         | Page footer settings (margins, font size, mark height)         |
 | `toc`            | Table of contents styling (margins, colors, typography)        |
 | `titlePage`      | `document`/`slides` layout with inline style strings           |
+
+The title page loads the generated `brand-vars.css` (same as content pages),
+so `@font-face` rules from `fontCssDocument` / `fontCssSlides` apply there
+too. Reference the branded family directly in `titlePage.*Style` (e.g.
+`font-family: 'Montserrat', sans-serif`) to keep typography consistent
+across title page, TOC, and body.
 
 ---
 

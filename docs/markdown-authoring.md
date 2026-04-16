@@ -130,6 +130,8 @@ Validation is strict: **`version`** must be **`1`**, **`assets.logo`**, **`asset
 
 **Assets:** **`decoration`** is only used on the **title page** (large backdrop, **`decorationImgStyle`**). **`footerMark`** is the small mark beside **“n / total”** in merged document PDFs.
 
+**Title-page fonts:** the title page pulls in the generated **`brand-vars.css`**, so **`@font-face`** rules from **`fontCssDocument`** / **`fontCssSlides`** are available there too. You can reference the branded family directly from **`titlePage.*Style`** inline styles (e.g. **`font-family: 'Montserrat', sans-serif`**) and it will render identically to body text and the TOC.
+
 ### Using a custom brand inside the package
 
 The installed package includes **`brandings/`** (see **`package.json`** → **`files`**). Only folders shipped there are available via **`"branding": "<id>"`**. To ship a **private** id inside the tarball, use a **fork** or **Git dependency** that adds **`brandings/<id>/`**; ad-hoc edits under **`node_modules`** are lost on reinstall. Prefer **`brandingDir`** in consumer repos instead of forking when you only need custom visuals.
@@ -184,6 +186,7 @@ Example: `examples/simple/simple-document.md` (no sibling `.meta.json`).
 - Only line-start headings **`#`**, **`##`**, **`###`** (levels 1–3) appear in the generated TOC.
 - Headings `####` and below are **not** listed.
 - In **`document`** layout, those headings are converted to self-linked HTML **`<h1>`–`<h3>` with stable `id` attributes** before PDF render. The measurement PDF uses those internal destinations to assign TOC page numbers, and the merged PDF uses the same slugs for TOC links. Write headings in normal ATX Markdown; do not hand-edit the generated IDs.
+- **`#` lines that are not real headings are ignored** — the extractor tracks CommonMark block context and skips `#` lines inside fenced code blocks (`` ` `` ```or`~~~`, up to 3 spaces of indent), HTML comments (`<!-- … -->`, even across lines), and raw-text HTML blocks (`<script>`, `<pre>`, `<style>`, `<textarea>`). So shell comments like `# build`inside a`bash`block, preprocessor directives inside`c`, etc. stay out of the TOC and don't trigger slide breaks.
 
 ## YAML front matter (`---` at the top)
 
