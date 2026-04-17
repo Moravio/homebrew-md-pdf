@@ -2,7 +2,7 @@
 
 > This file is designed for large language models assisting users with md-pdf.
 > Canonical URL: https://raw.githubusercontent.com/Moravio/homebrew-md-pdf/main/llm.txt
-> Version: 3.5.10
+> Version: 3.6.0
 
 md-pdf is a CLI tool that converts Markdown files into professionally branded
 PDFs with title pages, table of contents, Mermaid diagrams, syntax highlighting,
@@ -73,6 +73,7 @@ TOC, or pagination. When present, full branding and layout features are enabled.
 | `toc`          | boolean | `true`             | Auto-generated table of contents (document layout only)    |
 | `branding`     | string  | `"moravio-default"`| Built-in branding id                                       |
 | `brandingDir`  | string  | —                  | Path to external branding folder (overrides `branding`)    |
+| `watermark`    | object  | —                  | Text watermark config (or `false` to disable brand default)|
 | `dictionary`   | array   | —                  | Extra words for `--spellcheck`                             |
 
 ### Minimal document example
@@ -298,12 +299,88 @@ md-pdf-branding-check ./my-brand
 | `footer`         | Page footer settings (margins, font size, mark height)         |
 | `toc`            | Table of contents styling (margins, colors, typography)        |
 | `titlePage`      | `document`/`slides` layout with inline style strings           |
+| `watermark`      | Optional brand-wide default watermark (overridable per-doc)    |
 
 The title page loads the generated `brand-vars.css` (same as content pages),
 so `@font-face` rules from `fontCssDocument` / `fontCssSlides` apply there
 too. Reference the branded family directly in `titlePage.*Style` (e.g.
 `font-family: 'Montserrat', sans-serif`) to keep typography consistent
 across title page, TOC, and body.
+
+---
+
+## Watermark
+
+Stamp a repeated or single text watermark behind the content (title page,
+TOC, and body). Set in `.meta.json` (per-document) or in `branding.json`
+(brand-wide default). `.meta.json` overrides the brand default; use
+`"watermark": false` (or `null`) in `.meta.json` to disable a brand default.
+
+```json
+{
+  "watermark": {
+    "text": "DRAFT",
+    "font": "Montserrat, sans-serif",
+    "size": "72pt",
+    "color": "rgba(198, 40, 40, 0.18)",
+    "weight": 800,
+    "angle": -30,
+    "position": "center",
+    "repeat": { "spacingX": "9cm", "spacingY": "7cm" }
+  }
+}
+```
+
+| Field      | Type                       | Default                                 | Description                                                  |
+|------------|----------------------------|-----------------------------------------|--------------------------------------------------------------|
+| `text`     | string (required)          | —                                       | The label to render                                          |
+| `font`     | string (CSS family)        | brand `fonts.sansStack` (→ `sans-serif`)| Any CSS `font-family` value. The SVG runs inside a `data:` URI — `var()` refs do NOT cascade in, so pass a concrete stack; the default is inlined at build time |
+| `size`     | string (CSS length)        | `56pt`                                  | Any CSS size (`pt`, `mm`, `px`, …)                           |
+| `color`    | string (CSS color)         | `rgba(0, 0, 0, 0.055)`                  | Hex/rgba; include alpha (default is faint — tune per brand)  |
+| `weight`   | number 1–1000 or CSS kw    | `600`                                   | `400`, `600`, `700`, `bold`, `normal`, …                     |
+| `angle`    | number (degrees)           | `-30` if `repeat`, else `0`             | Rotation                                                     |
+| `position` | preset string or `{x, y}`  | `center`                                | Presets: `center`, `top`, `bottom`, `left`, `right`, `top-left`, `top-right`, `bottom-left`, `bottom-right`. `{x, y}` accepts any CSS length/percentage |
+| `repeat`   | `{ spacingX, spacingY }`   | —                                       | Tiles the watermark at this step. Omit for single-per-page   |
+
+**Strict validation:** unknown keys in `watermark`, `repeat`, or `position`
+throw an error at conversion time.
+
+Implementation detail: the watermark is an SVG data-URI background painted
+through `body::before` with `position: fixed; inset: 0`, which Chromium
+replicates on every printed page across the full paper. Content and TOC
+renders always run with `pdf_options.margin: "0"` and derive their per-page
+margins from a paged-media frame table (`<table class="mp-page-frame">`
+with `<thead>`/`<tfoot>` spacers) built from the brand's `contentMargins`.
+The title render still uses `pdf_options.margin: "0"` + `body { padding }`
+when the watermark is active (single-page layout where body padding works).
+All built-in brandings set `printBackground: true` in their title-page
+`pdfOptions`, which is required for background images to print.
+
+**Brand-author constraint (external `brandingDir`):** any brand CSS that
+targets table cells (`td`, `th`, `thead`, `tbody`, `tfoot`) must exclude the
+frame with `:not(.mp-page-frame)`. Otherwise cell padding / borders / zebra
+rules leak into the per-page spacers and distort margins. The built-in
+brandings already scope their table rules this way; audit external `branding.json`
+CSS once before enabling the watermark on that brand.
+
+**Title-page layout note.** The `pdf_options.margin: 0` switch enlarges
+the Chromium viewport, shifting `position: fixed` brand decoration by the
+original margin. Brands can restore the original visual spot with an
+optional per-layout field:
+
+```jsonc
+"titlePage": {
+  "document": {
+    "watermarkDecorationTransform": "translate(0, 20mm)"
+  }
+}
+```
+
+Emitted verbatim as `.brand-title-decoration { transform: <value> }` in the
+generated watermark CSS (the title `<img>` decoration is tagged with that
+class). Tune empirically per brand — different decoration reference sides
+(top/right/bottom/left) mean no single formula fits all brands. Leave unset
+to skip the override.
 
 ---
 

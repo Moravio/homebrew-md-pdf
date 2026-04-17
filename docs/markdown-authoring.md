@@ -65,6 +65,7 @@ Minimal **document** metadata (no email, phone, or extra lines under the client)
 - **`toc`**: optional boolean, default **`true`**. Set **`false`** in **`document`** layout to **skip the generated table of contents** — the PDF is **title page + body** only (no TOC pages or measurement pass). Ignored for **`slides`**. Page footers (**`n / total`** + eagle) behave like the normal document merge.
 - **`branding`**: optional string id, default **`moravio-default`**. Must match a folder `brandings/<id>/` **inside the installed package** with **`branding.json`** plus assets. Ignored when **`brandingDir`** is set. See **Branding** below.
 - **`brandingDir`**: optional string path to a **folder** that contains **`branding.json`** (and the SVG assets listed there). Resolved relative to the **directory of your `.meta.json`** file (not the shell’s current working directory). Absolute paths are allowed. When present, **`branding`** is ignored — use this from **another repository** so your brand is **not** stored under **`node_modules`**. See **External branding (consumer projects)** below.
+- **`watermark`**: optional object that stamps a text watermark on every page (title, TOC, and body). Overrides a `watermark` default set in `branding.json`. Set to **`false`** to disable a brand default for this document. See **Watermark** below.
 
 ## Branding
 
@@ -140,6 +141,53 @@ The installed package includes **`brandings/`** (see **`package.json`** → **`f
 
 - **`examples/document/sample-document-duckbyte.meta.json`** — **`"branding": "duckbyte-advisory"`** (built-in id). Compare **`brandings/duckbyte-advisory/`** to **`brandings/moravio-default/`**.
 - **`examples/consumer-brand/`** — **`"brandingDir": "my-corp"`** with the brand folder beside the Markdown files.
+
+## Watermark
+
+Use the **`watermark`** block (in `.meta.json` or under the top-level `watermark` key in `branding.json`) to stamp a repeated or single text marker behind the content — useful for labeling work-in-progress documents as **DRAFT**, **CONFIDENTIAL**, and similar.
+
+```json
+{
+  "watermark": {
+    "text": "DRAFT",
+    "size": "72pt",
+    "color": "rgba(198, 40, 40, 0.18)",
+    "weight": 800,
+    "angle": -30,
+    "repeat": { "spacingX": "9cm", "spacingY": "7cm" }
+  }
+}
+```
+
+- **`text`** _(required)_ — the label drawn behind the content.
+- **`font`** — any CSS `font-family` value. Defaults to the brand's resolved sans stack (whatever `branding.json` → `fonts.sansStack` evaluates to), falling back to `sans-serif` if that is unavailable. The watermark SVG is served as a `data:` URI, which is an isolated document — CSS custom properties (`var(--brand-font-sans, …)`) from the host page do **not** cascade in, so the resolved stack is inlined at build time. If you override this field, pass a concrete font-family string, not a `var()` reference.
+- **`size`** — CSS size, default **`56pt`**.
+- **`color`** — CSS color including alpha, default **`rgba(0, 0, 0, 0.055)`** (deliberately faint so the mark does not overwhelm the content).
+- **`weight`** — numeric `1`–`1000` or a CSS keyword (`bold`, `normal`, …), default **`600`**.
+- **`angle`** — rotation in degrees. Default **`-30`** when `repeat` is set, **`0`** otherwise.
+- **`position`** — either a preset (**`center`**, **`top`**, **`bottom`**, **`left`**, **`right`**, **`top-left`**, **`top-right`**, **`bottom-left`**, **`bottom-right`**) or an explicit **`{ "x": "2cm", "y": "50%" }`** object. Accepts any CSS length or percentage.
+- **`repeat`** — when present, tiles the watermark with **`spacingX`** × **`spacingY`** step (both required, CSS lengths). Omit for a **single** watermark per page, positioned via `position`.
+
+Validation is **strict**: unknown keys in **`watermark`**, **`repeat`**, or **`position`** throw an error. Priority is **`.meta.json`** > **`branding.json`** > disabled; setting **`"watermark": false`** (or **`null`**) in `.meta.json` turns off a brand default.
+
+The watermark is drawn as an SVG data-URI background via `body::before` with `position: fixed`, so Chromium replicates it on every printed page (title page, TOC, and body) across the full paper. The page background must be printable — all built-in brandings set **`printBackground: true`** in their title-page **`pdfOptions`**.
+
+Content and TOC renders always run with `pdf_options.margin: "0"` and get their per-page margins from a paged-media frame table (`<table class="mp-page-frame">` with `<thead>`/`<tfoot>` spacers) that Chromium replicates on every page. The frame margins come straight from the brand's **`contentMargins.<layout>`** — no change to author-visible fields.
+
+> **Brand authors (external `brandingDir`):** any CSS in your brand that targets `td` / `th` / `thead` / `tbody` / `tfoot` without scoping must exclude the frame — suffix selectors with `:not(.mp-page-frame)` (e.g. `table:not(.moravio-toc-table):not(.mp-page-frame) td { … }`). Otherwise your cell padding, borders, or zebra rows will leak into the page-frame spacers and distort per-page margins. The built-in brandings already follow this rule; external `branding.json` folders need to audit their CSS once before enabling the watermark.
+
+**Title-page layout note.** When a watermark is active, the pipeline renders the title page with `pdf_options.margin: "0"` (instead of the brand's original margin) and moves that margin into a `body { padding }` rule so the SVG background can cover the full paper. That change enlarges the Chromium viewport from the brand's original content area to the full paper, which shifts any `position: fixed` title-page decoration visually. To restore the decoration's original visual position, set an optional brand field:
+
+```jsonc
+"titlePage": {
+  "document": {
+    "decorationImgStyle": "position: fixed; right: -364px; top: 100mm; width: 1800px; z-index: -1;",
+    "watermarkDecorationTransform": "translate(0, 20mm)"
+  }
+}
+```
+
+The string is emitted verbatim as `.brand-title-decoration { transform: <value> }` in the generated watermark CSS when the watermark is active (the `<img>` that `renderTitleMarkdown` emits for the decoration carries that class). Tune it empirically per brand by generating the title with and without a watermark and comparing the decoration position — different brands use different reference sides (`top`/`right`/`bottom`/`left`) for their decoration, so there is no single formula. Leave the field unset to skip the override entirely.
 
 ## Layout, pagination, and TOC at a glance
 
