@@ -2,7 +2,7 @@
 
 > This file is designed for large language models assisting users with md-pdf.
 > Canonical URL: https://raw.githubusercontent.com/Moravio/homebrew-md-pdf/main/llm.txt
-> Version: 3.6.0
+> Version: 3.7.0
 
 md-pdf is a CLI tool that converts Markdown files into professionally branded
 PDFs with title pages, table of contents, Mermaid diagrams, syntax highlighting,
@@ -381,6 +381,79 @@ generated watermark CSS (the title `<img>` decoration is tagged with that
 class). Tune empirically per brand — different decoration reference sides
 (top/right/bottom/left) mean no single formula fits all brands. Leave unset
 to skip the override.
+
+---
+
+## Typography normalization
+
+Since v3.7.0 md-pdf runs the Markdown source through a small typography
+rule table before rendering. Rules target characters that AI assistants
+emit but that are unwanted in client-facing documents.
+
+**Current rules:**
+
+| Rule id   | Replaces                                  | With              |
+|-----------|-------------------------------------------|-------------------|
+| `em-dash` | `—` (U+2014) + any surrounding ` `/`\t`   | ` - ` (spaced hyphen) |
+
+Rule `em-dash` collapses `word—word`, `word — word`, `word —word`,
+`word— word` all to `word - word`. Newlines are NOT consumed — em-dash on
+its own line produces ` - ` on its own line.
+
+**Skip zones** (rules NEVER apply, contents preserved verbatim):
+
+- Fenced code blocks (```` ``` ````)
+- Inline code (`` ` ``)
+- HTML `<pre>` and `<code>` blocks
+- Markdown link/image targets: the `(url)` part of `[text](url)` and `![alt](url)`
+- Bare URLs (`https?://…`)
+
+**Opt-out via `.meta.json`:**
+
+```json
+{
+  "typography": {
+    "preserve": true
+  }
+}
+```
+
+Or granularly:
+
+```json
+{
+  "typography": {
+    "disable": ["em-dash"]
+  }
+}
+```
+
+| Field      | Type              | Default | Description                                  |
+|------------|-------------------|---------|----------------------------------------------|
+| `preserve` | boolean           | `false` | `true` skips ALL typography rules            |
+| `disable`  | string[] (ids)    | `[]`    | Disable specific rules by id                 |
+
+Invalid shapes (non-object root, non-boolean `preserve`, non-string-array
+`disable`) are warned about and ignored (graceful — normalization is a
+polish feature, not a blocker). Unknown rule ids in `disable` are warned
+about and skipped.
+
+**When to opt out:** rarely. Em-dash normalization is desirable for
+client-facing output. Opt out only when the em-dash carries semantic
+meaning that must be preserved (academic typography, quoted source text,
+etc.). Prefer `disable: ["em-dash"]` over `preserve: true` so future
+rules still apply.
+
+**Examples:**
+
+- `examples/document/typography-test.md` — normalization on (default).
+- `examples/document/typography-preserve-test.md` — `preserve: true`.
+
+Implementation: `lib/typography.js` exports `TYPOGRAPHY_RULES` (the rule
+table) and `applyTypographyRulesToMarkdown`. The table is the single
+source of truth; adding a new rule is one entry `{ id, pattern, replacement }`
+(the `pattern` RegExp must have the `g` flag). Skip logic is applied
+uniformly to every rule.
 
 ---
 

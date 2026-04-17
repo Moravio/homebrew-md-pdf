@@ -189,6 +189,44 @@ Content and TOC renders always run with `pdf_options.margin: "0"` and get their 
 
 The string is emitted verbatim as `.brand-title-decoration { transform: <value> }` in the generated watermark CSS when the watermark is active (the `<img>` that `renderTitleMarkdown` emits for the decoration carries that class). Tune it empirically per brand by generating the title with and without a watermark and comparing the decoration position — different brands use different reference sides (`top`/`right`/`bottom`/`left`) for their decoration, so there is no single formula. Leave the field unset to skip the override entirely.
 
+## Typography normalization
+
+Since v3.7.0 md-pdf runs the Markdown source through a small typography rule table before rendering. The rules target characters that AI assistants commonly emit but that are easy tells and frequently unwanted in client-facing documents.
+
+**Current rules (v3.7.0):**
+
+| Rule id   | What it does                                                                                                                                                         |
+| --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `em-dash` | Replaces em-dash (`—`, U+2014) and any surrounding horizontal whitespace with a spaced hyphen (`-`). Matches `word—word`, `word — word`, `word —word`, `word— word`. |
+
+**Where rules do NOT apply** (contents are preserved verbatim):
+
+- Fenced code blocks (` ``` `)
+- Inline code (`` ` ``)
+- HTML `<pre>` and `<code>` blocks
+- Markdown link targets `[text](url)` and image targets `![alt](url)`
+- Bare URLs (`https://…`, `http://…`)
+
+**Opt-out via `.meta.json`:**
+
+```jsonc
+{
+  "typography": {
+    "preserve": true, // kill switch — skip all rules
+    // or: "disable": ["em-dash"]  // disable specific rules only
+  },
+}
+```
+
+`preserve: true` bypasses the entire pipeline. `disable` accepts an array of rule ids (currently only `em-dash`). Unknown ids are warned about and ignored — they will not break the build. Invalid shapes (`preserve` not boolean, `disable` not an array of strings) fall back to defaults with a warning.
+
+**Examples** demonstrating the feature:
+
+- `examples/document/typography-test.md` — default (normalization **on**). The PDF shows hyphens everywhere except code and URLs.
+- `examples/document/typography-preserve-test.md` — `"typography": { "preserve": true }` (normalization **off**). The PDF keeps every em-dash from the source.
+
+**Adding a new rule** is a code change in `lib/typography.js` — extend the `TYPOGRAPHY_RULES` array with a new `{ id, pattern, replacement }` entry. The `pattern` must carry the `g` flag. The skip logic in `applyTypographyRulesToMarkdown` applies to every rule uniformly, so you do not have to re-implement code-block masking per rule.
+
 ## Layout, pagination, and TOC at a glance
 
 | Layout     | `titlePage` | `pagination` | `toc`   | Auto slide breaks | Page footer (n/total + mark) | TOC generated | Bottom margin    |
