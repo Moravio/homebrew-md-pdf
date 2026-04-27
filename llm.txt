@@ -2,11 +2,11 @@
 
 > This file is designed for large language models assisting users with md-pdf.
 > Canonical URL: https://raw.githubusercontent.com/Moravio/homebrew-md-pdf/main/llm.txt
-> Version: 3.10.0
+> Version: 3.12.0
 
-md-pdf is a CLI tool that converts Markdown files into professionally branded
-PDFs with title pages, table of contents, Mermaid diagrams, syntax highlighting,
-and slide layouts.
+md-pdf is a CLI + library that converts Markdown files into professionally
+branded PDFs with title pages, table of contents, Mermaid diagrams, syntax
+highlighting, and slide layouts.
 
 Install: `brew tap moravio/md-pdf && brew install md-pdf`
 Requires: Node.js 18+, Chromium-based browser (e.g. Google Chrome).
@@ -34,6 +34,44 @@ Options:
 Other commands:
 - `md-pdf-branding-init <dir>`  — scaffold a new branding folder
 - `md-pdf-branding-check <dir>` — validate a branding folder
+
+---
+
+## Library API (since 3.12.0)
+
+For Node.js consumers that want to embed md-pdf without spawning the CLI as a
+subprocess (Electron apps, web servers, build pipelines):
+
+```js
+import { render } from "@moravio/md-pdf";          // or "@moravio/md-pdf/api"
+
+const { outputPath, simple } = await render({
+  mdPath: "/abs/path/document.md",
+  outputPath: "/abs/path/document.pdf",  // optional; defaults to <basename>.pdf
+  pageFormat: "A4",                       // optional; A3 | A4 | A5 | Letter | Legal | Tabloid
+  allowSimpleFallback: true,              // optional; default true
+});
+```
+
+`render()` returns `{ outputPath, simple }`. `simple` is `true` when no
+`.meta.json` was found and the no-frills path was used.
+
+`MissingMetaError` is also exported. Set `allowSimpleFallback: false` to
+make missing meta a hard error.
+
+The CLI binary (`md-pdf`) and all its flags continue to work. Internally the
+CLI calls `convertToPdf` / `convertToPdfSimple` from the same module, so the
+library and CLI produce identical output.
+
+Subpath exports:
+- `@moravio/md-pdf` and `@moravio/md-pdf/api` — library entry (`render`)
+- `@moravio/md-pdf/cli` — CLI entry (rarely needed; prefer the bin)
+
+Limitations: real-time progress streaming and `Buffer` returns are not yet
+supported. Internal helpers (`build-toc`, `merge-pdf`, `prerender-mermaid`)
+still run as `spawnSync(node, …, { stdio: "inherit" })`, so log lines go to
+the host process's stdout. To capture them, hook `process.stdout.write`
+while the render is in flight.
 
 ---
 
