@@ -2,7 +2,7 @@
 
 > This file is designed for large language models assisting users with md-pdf.
 > Canonical URL: https://raw.githubusercontent.com/Moravio/homebrew-md-pdf/main/llm.txt
-> Version: 3.9.0
+> Version: 3.10.0
 
 md-pdf is a CLI tool that converts Markdown files into professionally branded
 PDFs with title pages, table of contents, Mermaid diagrams, syntax highlighting,
@@ -75,6 +75,13 @@ TOC, or pagination. When present, full branding and layout features are enabled.
 | `branding`     | string  | `"moravio-default"`| Built-in branding id                                       |
 | `brandingDir`  | string  | —                  | Path to external branding folder (overrides `branding`)    |
 | `pageFormat`   | string  | `"A4"`             | Page size: `A3`, `A4`, `A5`, `Letter`, `Legal`, `Tabloid`. Overrides branding default; CLI `--page-format` wins. |
+
+### Branding-level options (set in `branding.json`, not in `.meta.json`)
+
+| Field                 | Type   | Description                                                                                                                                                                       |
+|-----------------------|--------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `pageBackground`      | string | CSS color (`"#fbf6ed"`, `"rgb(...)"`). Filled on every printed sheet via fixed-position body::before so multi-page overflow stays opaque. Use when the brand has a non-white page. |
+| `footer.fontRegular`  | string | Path to a TTF (relative to branding.json). Used to embed the page-number footer instead of Helvetica.                                                                              |
 | `watermark`    | object  | —                  | Text watermark config (or `false` to disable brand default)|
 | `dictionary`   | array   | —                  | Extra words for `--spellcheck`                             |
 

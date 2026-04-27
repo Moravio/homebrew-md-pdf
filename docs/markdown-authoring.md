@@ -66,6 +66,11 @@ Minimal **document** metadata (no email, phone, or extra lines under the client)
 - **`branding`**: optional string id, default **`moravio-default`**. Must match a folder `brandings/<id>/` **inside the installed package** with **`branding.json`** plus assets. Ignored when **`brandingDir`** is set. See **Branding** below.
 - **`brandingDir`**: optional string path to a **folder** that contains **`branding.json`** (and the SVG assets listed there). Resolved relative to the **directory of your `.meta.json`** file (not the shell’s current working directory). Absolute paths are allowed. When present, **`branding`** is ignored — use this from **another repository** so your brand is **not** stored under **`node_modules`**. See **External branding (consumer projects)** below.
 - **`pageFormat`**: optional string, one of **`A3`**, **`A4`** (default), **`A5`**, **`Letter`**, **`Legal`**, **`Tabloid`**. Overrides the branding's default page size on **both** the title page and the content body so the whole PDF stays one paper size. Unknown values fail fast with a clear error. Equivalent CLI flag: **`--page-format <fmt>`** — the CLI flag wins over the meta-level field.
+
+### Branding-level options (set in `branding.json`, not in `.meta.json`)
+
+- **`pageBackground`**: optional CSS color (e.g. `"#fbf6ed"`, `"rgb(252, 246, 237)"`). When set, md-pdf emits a `position: fixed` body::before layer on **every** printed sheet — title page, TOC, and content — so the background color survives multi-page overflow. Without this, a `body { background }` rule clips at the body element box and only fills the first sheet. Use this when your brand has a non-white page background.
+- **`footer.fontRegular`**: optional path to a TTF (relative to `branding.json`). When present, the page-number footer (`n / total`) is embedded with that font instead of pdf-lib's default Helvetica. Use this so the footer matches your brand font family.
 - **`watermark`**: optional object that stamps a text watermark on every page (title, TOC, and body). Overrides a `watermark` default set in `branding.json`. Set to **`false`** to disable a brand default for this document. See **Watermark** below.
 
 ## Branding
