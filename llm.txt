@@ -80,8 +80,10 @@ TOC, or pagination. When present, full branding and layout features are enabled.
 
 | Field                 | Type   | Description                                                                                                                                                                       |
 |-----------------------|--------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `pageBackground`      | string | CSS color (`"#fbf6ed"`, `"rgb(...)"`). Filled on every printed sheet via fixed-position body::before so multi-page overflow stays opaque. Use when the brand has a non-white page. |
+| `pageBackground`      | string | CSS color (`"#fbf6ed"`, `"rgb(...)"`). Filled on every printed sheet via fixed-position body::before so multi-page overflow stays opaque. Use when the brand has a non-white page. Title page is full-bleed too — title pdf margin is moved to body padding when set. |
+| `titlePage.<layout>.decorationInside` | boolean | When `true`, the brand decoration is placed inside the title container/outer wrapper. Use for tall portrait illustrations that would otherwise overflow to a second sheet. |
 | `footer.fontRegular`  | string | Path to a TTF (relative to branding.json). Used to embed the page-number footer instead of Helvetica.                                                                              |
+| `toc.fontRegular` / `toc.fontBold` | string | Path to a TTF (relative to branding.json). Embed in the rendered TOC overlay so chapter/page text matches the brand body font. |
 | `watermark`    | object  | —                  | Text watermark config (or `false` to disable brand default)|
 | `dictionary`   | array   | —                  | Extra words for `--spellcheck`                             |
 
