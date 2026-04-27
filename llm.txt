@@ -2,7 +2,7 @@
 
 > This file is designed for large language models assisting users with md-pdf.
 > Canonical URL: https://raw.githubusercontent.com/Moravio/homebrew-md-pdf/main/llm.txt
-> Version: 3.7.0
+> Version: 3.8.0
 
 md-pdf is a CLI tool that converts Markdown files into professionally branded
 PDFs with title pages, table of contents, Mermaid diagrams, syntax highlighting,
@@ -286,6 +286,27 @@ md-pdf-branding-check ./my-brand
 # 4. Reference in .meta.json (path relative to .meta.json location):
 #    "brandingDir": "./my-brand"
 ```
+
+### User-installed brandings (shared across projects)
+
+For brandings you reuse across many projects, install them under
+`~/.md-pdf/brands/<id>/` (cross-platform — resolved via `os.homedir()`).
+Reference them from any `.meta.json` by id, exactly like a built-in:
+
+```jsonc
+{ "branding": "my-brand" } // resolves ~/.md-pdf/brands/my-brand/
+```
+
+Resolution order for `branding: "<id>"`:
+
+1. `~/.md-pdf/brands/<id>/` (user-installed, takes precedence — lets you
+   shadow a built-in like `moravio-default` without forking)
+2. Bundled `<package>/brandings/<id>/` (fallback)
+
+Override the user dir with the `MD_PDF_BRANDS_DIR` env var (useful for
+tests, CI, or project-scoped overrides). Each user brand folder must
+contain a `branding.json`; scaffold one with
+`md-pdf-branding-init ~/.md-pdf/brands/my-brand`.
 
 ### branding.json structure (version 1)
 

@@ -73,6 +73,21 @@ Minimal **document** metadata (no email, phone, or extra lines under the client)
 
 Brands shipped with the tool live under **`brandings/<id>/`** at the **package root** (the same directory that contains `convert-to-pdf.js`). The **`branding`** value in `.meta.json` is the folder name **`<id>`**; the loader opens `brandings/<id>/branding.json`. Keep **`"id"`** inside `branding.json` equal to that folder name so paths and errors stay clear.
 
+### User-installed brands (`~/.md-pdf/brands/<id>/`)
+
+For brands you reuse across many projects, install them under **`~/.md-pdf/brands/<id>/`** (cross-platform via `os.homedir()`). Reference them from any **`.meta.json`** by id, exactly like a built-in:
+
+```json
+{ "branding": "my-brand" }
+```
+
+Resolution order for **`branding: "<id>"`**:
+
+1. **`~/.md-pdf/brands/<id>/`** (user-installed) — takes precedence; lets you shadow a built-in like **`moravio-default`** without forking.
+2. Bundled **`<package>/brandings/<id>/`** — fallback.
+
+Override the user dir with the **`MD_PDF_BRANDS_DIR`** env var (useful for tests, CI, or project-scoped overrides). Each user brand folder must contain a **`branding.json`** plus the assets it references; scaffold one with **`npx md-pdf-branding-init ~/.md-pdf/brands/my-brand`**.
+
 ### External branding (consumer projects)
 
 Use this when you depend on **`@moravio/md-pdf`** from Git in **your own repo** and want a brand that survives **`npm install`** without forking.
