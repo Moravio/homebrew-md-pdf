@@ -1,0 +1,8 @@
+{
+  "version": "0.1.1",
+  "tagName": "desktop-v0.1.1",
+  "publishedAt": "2026-04-28T08:00:00Z",
+  "notes": "Manifest placeholder for the in-app update banner test. The first real release will overwrite this from the desktop repo's release workflow.",
+  "htmlUrl": "https://github.com/Moravio/homebrew-md-pdf/releases",
+  "assets": {}
+}
