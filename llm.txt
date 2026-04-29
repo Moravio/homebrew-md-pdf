@@ -2,7 +2,7 @@
 
 > This file is designed for large language models assisting users with md-pdf.
 > Canonical URL: https://raw.githubusercontent.com/Moravio/homebrew-md-pdf/main/llm.txt
-> Version: 3.14.0
+> Version: 3.14.1
 
 md-pdf is a CLI + library that converts Markdown files into professionally
 branded PDFs with title pages, table of contents, Mermaid diagrams, syntax
@@ -106,6 +106,7 @@ TOC, or pagination. When present, full branding and layout features are enabled.
 | `email`        | string  | —                  | Contact email (shown on title page as mailto link)         |
 | `phoneNumber`  | string  | —                  | Contact phone (shown on title page as tel link)            |
 | `date`         | string  | today's date       | Explicit date string; localized by `language` when omitted |
+| `hideDate`     | boolean | `false`            | Drop the Date row from the document title meta grid and the Date column from the slides title footer. For storybook covers where a printed date is out of place. |
 | `customFields` | object  | —                  | Label → value pairs rendered below client on title page    |
 | `titlePage`    | boolean | `true`             | Set `false` to skip the title page entirely                |
 | `blankPageAfterTitle` | boolean | `false`     | Insert an unnumbered blank leaf after the title (booklet duplex printing). Pagination, when on, restarts at `1` on the first content page; total excludes title + blank. Ignored when `titlePage: false`. |
@@ -113,7 +114,7 @@ TOC, or pagination. When present, full branding and layout features are enabled.
 | `toc`          | boolean | `true`             | Auto-generated table of contents (document layout only)    |
 | `branding`     | string  | `"moravio-default"`| Built-in branding id                                       |
 | `brandingDir`  | string  | —                  | Path to external branding folder (overrides `branding`)    |
-| `pageFormat`   | string  | `"A4"`             | Page size: `A3`, `A4`, `A5`. Overrides branding default; CLI `--page-format` wins. |
+| `pageFormat`   | string  | `"A4"`             | Page size: `A3`, `A4`, `A5`. Single-valued for the whole document — title page always matches body format. CLI `--page-format` wins. |
 
 ### Branding-level options (set in `branding.json`, not in `.meta.json`)
 
