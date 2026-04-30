@@ -1,19 +1,19 @@
 {
-  "version": "0.3.1",
-  "tagName": "desktop-v0.3.1",
-  "publishedAt": "2026-04-30T11:56:54Z",
-  "notes": "## What's Changed\n* fix: bundled Chromium cache + macOS install note (v0.3.1) by @krata in https://github.com/Moravio/md-pdf-desktop/pull/35\n* fix: release workflow YAML broken by markdown heredoc by @krata in https://github.com/Moravio/md-pdf-desktop/pull/36\n\n\n**Full Changelog**: https://github.com/Moravio/md-pdf-desktop/compare/v0.3.0...v0.3.1\n---\n\n## Installation\n\n### macOS\n\n1. Download the `.dmg` and drag **md-pdf** into `/Applications`.\n2. The first time you open it, macOS will refuse with *\"md-pdf is damaged…\"* — this app is ad-hoc signed only. Remove the quarantine flag once:\n   ```bash\n   xattr -dr com.apple.quarantine /Applications/md-pdf.app\n   ```\n3. Open it normally afterwards. Updates downloaded inside the app don't need this step.\n\n### Windows\n\nDownload the `.exe`, run it. SmartScreen may warn — choose *More info → Run anyway*.",
-  "htmlUrl": "https://github.com/Moravio/homebrew-md-pdf/releases/tag/desktop-v0.3.1",
+  "version": "0.4.0",
+  "tagName": "desktop-v0.4.0",
+  "publishedAt": "2026-04-30T12:51:43Z",
+  "notes": "## What's Changed\n* feat: TOC heading-level range controls (md-pdf 3.16.0, desktop 0.4.0) by @krata in https://github.com/Moravio/md-pdf-desktop/pull/37\n\n\n**Full Changelog**: https://github.com/Moravio/md-pdf-desktop/compare/v0.3.1...v0.4.0\n---\n\n## Installation\n\n### macOS\n\n1. Download the `.dmg` and drag **md-pdf** into `/Applications`.\n2. The first time you open it, macOS will refuse with *\"md-pdf is damaged…\"* — this app is ad-hoc signed only. Remove the quarantine flag once:\n   ```bash\n   xattr -dr com.apple.quarantine /Applications/md-pdf.app\n   ```\n3. Open it normally afterwards. Updates downloaded inside the app don't need this step.\n\n### Windows\n\nDownload the `.exe`, run it. SmartScreen may warn — choose *More info → Run anyway*.",
+  "htmlUrl": "https://github.com/Moravio/homebrew-md-pdf/releases/tag/desktop-v0.4.0",
   "assets": {
     "darwin-arm64": {
-      "name": "md-pdf-0.3.1-arm64.dmg",
-      "url": "https://github.com/Moravio/homebrew-md-pdf/releases/download/desktop-v0.3.1/md-pdf-0.3.1-arm64.dmg",
-      "size": 397654331
+      "name": "md-pdf-0.4.0-arm64.dmg",
+      "url": "https://github.com/Moravio/homebrew-md-pdf/releases/download/desktop-v0.4.0/md-pdf-0.4.0-arm64.dmg",
+      "size": 397867832
     },
     "win32-x64": {
-      "name": "md-pdf Setup 0.3.1.exe",
-      "url": "https://github.com/Moravio/homebrew-md-pdf/releases/download/desktop-v0.3.1/md-pdf%20Setup%200.3.1.exe",
-      "size": 332073713
+      "name": "md-pdf Setup 0.4.0.exe",
+      "url": "https://github.com/Moravio/homebrew-md-pdf/releases/download/desktop-v0.4.0/md-pdf%20Setup%200.4.0.exe",
+      "size": 332077045
     }
   }
 }
