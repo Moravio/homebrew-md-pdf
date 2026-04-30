@@ -2,7 +2,7 @@
 
 > This file is designed for large language models assisting users with md-pdf.
 > Canonical URL: https://raw.githubusercontent.com/Moravio/homebrew-md-pdf/main/llm.txt
-> Version: 3.14.2
+> Version: 3.15.0
 
 md-pdf is a CLI + library that converts Markdown files into professionally
 branded PDFs with title pages, table of contents, Mermaid diagrams, syntax
@@ -66,6 +66,32 @@ library and CLI produce identical output.
 Subpath exports:
 - `@moravio/md-pdf` and `@moravio/md-pdf/api` — library entry (`render`)
 - `@moravio/md-pdf/cli` — CLI entry (rarely needed; prefer the bin)
+
+### Meta validation (since 3.15.0)
+
+Before invoking the CLI or `render()`, callers can validate a parsed
+`.meta.json` against the same rules the renderer enforces:
+
+```js
+import { validateMeta } from "@moravio/md-pdf";
+
+const meta = JSON.parse(fs.readFileSync("doc.meta.json", "utf8"));
+const { ok, errors, warnings } = validateMeta(meta);
+if (!ok) {
+  for (const e of errors) console.error(`${e.path}: ${e.message}`);
+  process.exit(1);
+}
+```
+
+Returns `{ ok: boolean, errors: ValidationIssue[], warnings: ValidationIssue[] }`,
+each issue is `{ path: string, message: string }`. `path` is a JSON-pointer-ish
+dotted key (`watermark.repeat.spacingX`, `customFields[2].label`). Errors block;
+warnings (e.g. unknown top-level keys) never do — that keeps a desktop bundled
+against an older md-pdf from rejecting a meta authored against a newer CLI.
+
+The CLI runs the validator automatically before each conversion, so a typo
+like `"pageFormat": "Letter"` aborts with a precise message instead of
+silently rendering with the wrong paper.
 
 Limitations: real-time progress streaming and `Buffer` returns are not yet
 supported. Internal helpers (`build-toc`, `merge-pdf`, `prerender-mermaid`)
