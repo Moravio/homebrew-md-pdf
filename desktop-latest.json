@@ -1,19 +1,19 @@
 {
-  "version": "0.2.4",
-  "tagName": "desktop-v0.2.4",
-  "publishedAt": "2026-04-30T06:26:12Z",
-  "notes": "## What's Changed\n* fix: limit page format options to A3/A4/A5 by @krata in https://github.com/Moravio/md-pdf-desktop/pull/32\n\n\n**Full Changelog**: https://github.com/Moravio/md-pdf-desktop/compare/v0.2.3...v0.2.4",
-  "htmlUrl": "https://github.com/Moravio/homebrew-md-pdf/releases/tag/desktop-v0.2.4",
+  "version": "0.2.5",
+  "tagName": "desktop-v0.2.5",
+  "publishedAt": "2026-04-30T06:34:53Z",
+  "notes": "## What's Changed\n* feat: add hideDate toggle to meta form by @krata in https://github.com/Moravio/md-pdf-desktop/pull/33\n\n\n**Full Changelog**: https://github.com/Moravio/md-pdf-desktop/compare/v0.2.4...v0.2.5",
+  "htmlUrl": "https://github.com/Moravio/homebrew-md-pdf/releases/tag/desktop-v0.2.5",
   "assets": {
     "darwin-arm64": {
-      "name": "md-pdf-0.2.4-arm64.dmg",
-      "url": "https://github.com/Moravio/homebrew-md-pdf/releases/download/desktop-v0.2.4/md-pdf-0.2.4-arm64.dmg",
-      "size": 397645249
+      "name": "md-pdf-0.2.5-arm64.dmg",
+      "url": "https://github.com/Moravio/homebrew-md-pdf/releases/download/desktop-v0.2.5/md-pdf-0.2.5-arm64.dmg",
+      "size": 397788154
     },
     "win32-x64": {
-      "name": "md-pdf Setup 0.2.4.exe",
-      "url": "https://github.com/Moravio/homebrew-md-pdf/releases/download/desktop-v0.2.4/md-pdf%20Setup%200.2.4.exe",
-      "size": 332067605
+      "name": "md-pdf Setup 0.2.5.exe",
+      "url": "https://github.com/Moravio/homebrew-md-pdf/releases/download/desktop-v0.2.5/md-pdf%20Setup%200.2.5.exe",
+      "size": 332067636
     }
   }
 }
