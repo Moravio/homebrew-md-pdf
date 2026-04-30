@@ -2,7 +2,7 @@
 
 > This file is designed for large language models assisting users with md-pdf.
 > Canonical URL: https://raw.githubusercontent.com/Moravio/homebrew-md-pdf/main/llm.txt
-> Version: 3.15.1
+> Version: 3.16.0
 
 md-pdf is a CLI + library that converts Markdown files into professionally
 branded PDFs with title pages, table of contents, Mermaid diagrams, syntax
@@ -137,7 +137,7 @@ TOC, or pagination. When present, full branding and layout features are enabled.
 | `titlePage`    | boolean | `true`             | Set `false` to skip the title page entirely                |
 | `blankPageAfterTitle` | boolean | `false`     | Insert an unnumbered blank leaf after the title (booklet duplex printing). Pagination, when on, restarts at `1` on the first content page; total excludes title + blank. Ignored when `titlePage: false`. |
 | `pagination`   | boolean | `true`             | Page numbers and auto slide breaks                         |
-| `toc`          | boolean | `true`             | Auto-generated table of contents (document layout only)    |
+| `toc`          | boolean / int / object | `true` | Table of contents (document layout only). Accepts `true`/`false`, an integer 1–6 (shorthand for `{minHeadingLevel: 1, maxHeadingLevel: N}`), or `{minHeadingLevel?, maxHeadingLevel?}` (each in 1–6, min ≤ max). Default range is H1–H3. Use `{minHeadingLevel: 2}` to skip H1 if you treat it as a title. |
 | `branding`     | string  | `"moravio-default"`| Built-in branding id                                       |
 | `brandingDir`  | string  | —                  | Path to external branding folder (overrides `branding`)    |
 | `pageFormat`   | string  | `"A4"`             | Page size: `A3`, `A4`, `A5`. Single-valued for the whole document — title page always matches body format. CLI `--page-format` wins. |
@@ -207,7 +207,9 @@ TOC, or pagination. When present, full branding and layout features are enabled.
 - A4 portrait
 - Title page → Table of contents → Body content
 - Page numbers and footer logo on every page (except title page)
-- TOC auto-generated from `#`, `##`, `###` headings (disable with `"toc": false`)
+- TOC auto-generated from `#`, `##`, `###` headings by default. Disable with
+  `"toc": false`; widen with `"toc": 4` (shorthand for H1–H4) or
+  `"toc": {"minHeadingLevel": 2, "maxHeadingLevel": 4}` for an explicit range
 - Headings converted to clickable anchors in PDF
 - `#` lines inside fenced code blocks (``` or `~~~`, max 3-space indent),
   HTML comments (`<!-- ... -->`), and raw-text HTML blocks (`<script>`,
