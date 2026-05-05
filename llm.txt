@@ -2,7 +2,7 @@
 
 > This file is designed for large language models assisting users with md-pdf.
 > Canonical URL: https://raw.githubusercontent.com/Moravio/homebrew-md-pdf/main/llm.txt
-> Version: 3.16.0
+> Version: 3.17.0
 
 md-pdf is a CLI + library that converts Markdown files into professionally
 branded PDFs with title pages, table of contents, Mermaid diagrams, syntax
@@ -254,6 +254,36 @@ title: Internal note
 Front matter is **stripped** before processing — it never appears in the PDF.
 Use `.meta.json` for all metadata, not front matter.
 
+### Includes (md-pdf 3.17+)
+
+Inline a partial Markdown file with `{% include path %}` on its own line:
+
+```markdown
+# Proposal
+
+{% include partials/about-moravio.cs.md %}
+
+## Project specifics
+…
+{% include @moravio/contact-footer.cs %}
+```
+
+Resolution rules:
+- Relative paths (`partials/foo.md`) resolve against the host file's directory.
+- Absolute paths are used as-is.
+- `@<brand>/<name>` resolves to `~/.md-pdf/brands/<brand>/partials/<name>[.md]`,
+  falling back to bundled `brandings/<brand>/partials/`. Override the lookup
+  root with `MD_PDF_BRANDS_DIR`.
+
+The directive must be the only content on its line (leading/trailing
+whitespace ignored); inline forms in prose or fenced code blocks are
+not expanded. Cycles are detected (warning by default, throw in strict
+mode via the library API); default depth limit is 8. Missing files
+emit a warning and leave the literal directive in the PDF.
+
+`md-pdf --watch` auto-watches every transitively-included file —
+editing a partial fires a re-render.
+
 ---
 
 ## Page breaks
@@ -441,6 +471,7 @@ TOC, and body). Set in `.meta.json` (per-document) or in `branding.json`
 | `angle`    | number (degrees)           | `-30` if `repeat`, else `0`             | Rotation                                                     |
 | `position` | preset string or `{x, y}`  | `center`                                | Presets: `center`, `top`, `bottom`, `left`, `right`, `top-left`, `top-right`, `bottom-left`, `bottom-right`. `{x, y}` accepts any CSS length/percentage |
 | `repeat`   | `{ spacingX, spacingY }`   | —                                       | Tiles the watermark at this step. Omit for single-per-page   |
+| `scope`    | `"all"` \| `"title"` \| `"content"` | `"all"`                                 | Restrict the watermark to the title page only, content pages only, or both (default). Use `"title"` for a "DRAFT" stamp on the cover that doesn't bleed into the body. |
 
 **Strict validation:** unknown keys in `watermark`, `repeat`, or `position`
 throw an error at conversion time.
