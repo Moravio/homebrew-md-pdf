@@ -2,7 +2,7 @@
 
 > This file is designed for large language models assisting users with md-pdf.
 > Canonical URL: https://raw.githubusercontent.com/Moravio/homebrew-md-pdf/main/llm.txt
-> Version: 3.17.0
+> Version: 3.18.0
 
 md-pdf is a CLI + library that converts Markdown files into professionally
 branded PDFs with title pages, table of contents, Mermaid diagrams, syntax
@@ -32,6 +32,11 @@ Options:
 - `--page-format <fmt>` — override page size: `A3`, `A4`, `A5` (CLI > meta.json > branding default)
 
 Other commands:
+- `md-pdf-init <outDir> [--template=proposal] [--lang=cs|en|both]`
+                                — scaffold a project from a bundled template.
+                                  Default template `proposal` copies the Moravio
+                                  CZ + EN proposal (with shared partials and assets)
+                                  and uses the built-in `moravio-proposal` branding.
 - `md-pdf-branding-init <dir>`  — scaffold a new branding folder
 - `md-pdf-branding-check <dir>` — validate a branding folder
 
