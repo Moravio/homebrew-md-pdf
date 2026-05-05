@@ -1,6 +1,8 @@
 # typed: false
 # frozen_string_literal: true
 
+require "json"
+
 # Homebrew formula for @moravio/md-pdf
 #
 # Usage:
@@ -33,12 +35,13 @@ class MdPdf < Formula
 
     pkg_path = libexec/"node_modules/@moravio/md-pdf"
 
-    # Map each bin name to its JS entry-point inside the installed package.
-    bins = {
-      "md-pdf"                => "convert-to-pdf.js",
-      "md-pdf-branding-check" => "scripts/branding-check.js",
-      "md-pdf-branding-init"  => "scripts/branding-init.js",
-    }
+    # Discover bin map from package.json so that future bin additions
+    # (e.g. md-pdf-init in 3.18.0) are picked up automatically without
+    # touching this formula. Each entry maps a CLI name to its JS
+    # entry-point relative to the package root.
+    pkg_json = JSON.parse((pkg_path/"package.json").read)
+    bins = pkg_json.fetch("bin", {})
+    odie "package.json has no bin entries" if bins.empty?
 
     bins.each do |cmd, script|
       (bin/cmd).write <<~SH
