@@ -1,19 +1,19 @@
 {
-  "version": "0.5.6",
-  "tagName": "desktop-v0.5.6",
-  "publishedAt": "2026-05-06T11:36:31Z",
-  "notes": "## What's Changed\n* fix: 0.5.6 — bump @moravio/md-pdf to 3.20.3 (asar.unpacked PACKAGE_DIR) by @krata in https://github.com/Moravio/md-pdf-desktop/pull/53\n\n\n**Full Changelog**: https://github.com/Moravio/md-pdf-desktop/compare/v0.5.5...v0.5.6\n---\n\n## Installation\n\n### macOS\n\n1. Download the `.dmg` and drag **md-pdf** into `/Applications`.\n2. The first time you open it, macOS will refuse with *\"md-pdf is damaged…\"* — this app is ad-hoc signed only. Remove the quarantine flag once:\n   ```bash\n   xattr -dr com.apple.quarantine /Applications/md-pdf.app\n   ```\n3. Open it normally afterwards. Updates downloaded inside the app don't need this step.\n\n### Windows\n\nDownload the `.exe`, run it. SmartScreen may warn — choose *More info → Run anyway*.",
-  "htmlUrl": "https://github.com/Moravio/homebrew-md-pdf/releases/tag/desktop-v0.5.6",
+  "version": "0.5.7",
+  "tagName": "desktop-v0.5.7",
+  "publishedAt": "2026-05-06T11:53:24Z",
+  "notes": "## What's Changed\n* fix: 0.5.7 — bump CLI to 3.20.4 (asset rewrite walk-up) by @krata in https://github.com/Moravio/md-pdf-desktop/pull/54\n\n\n**Full Changelog**: https://github.com/Moravio/md-pdf-desktop/compare/v0.5.6...v0.5.7\n---\n\n## Installation\n\n### macOS\n\n1. Download the `.dmg` and drag **md-pdf** into `/Applications`.\n2. The first time you open it, macOS will refuse with *\"md-pdf is damaged…\"* — this app is ad-hoc signed only. Remove the quarantine flag once:\n   ```bash\n   xattr -dr com.apple.quarantine /Applications/md-pdf.app\n   ```\n3. Open it normally afterwards. Updates downloaded inside the app don't need this step.\n\n### Windows\n\nDownload the `.exe`, run it. SmartScreen may warn — choose *More info → Run anyway*.",
+  "htmlUrl": "https://github.com/Moravio/homebrew-md-pdf/releases/tag/desktop-v0.5.7",
   "assets": {
     "darwin-arm64": {
-      "name": "md-pdf-0.5.6-arm64.dmg",
-      "url": "https://github.com/Moravio/homebrew-md-pdf/releases/download/desktop-v0.5.6/md-pdf-0.5.6-arm64.dmg",
-      "size": 408000755
+      "name": "md-pdf-0.5.7-arm64.dmg",
+      "url": "https://github.com/Moravio/homebrew-md-pdf/releases/download/desktop-v0.5.7/md-pdf-0.5.7-arm64.dmg",
+      "size": 407964811
     },
     "win32-x64": {
-      "name": "md-pdf Setup 0.5.6.exe",
-      "url": "https://github.com/Moravio/homebrew-md-pdf/releases/download/desktop-v0.5.6/md-pdf%20Setup%200.5.6.exe",
-      "size": 340234770
+      "name": "md-pdf Setup 0.5.7.exe",
+      "url": "https://github.com/Moravio/homebrew-md-pdf/releases/download/desktop-v0.5.7/md-pdf%20Setup%200.5.7.exe",
+      "size": 340234753
     }
   }
 }
