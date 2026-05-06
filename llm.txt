@@ -2,7 +2,7 @@
 
 > This file is designed for large language models assisting users with md-pdf.
 > Canonical URL: https://raw.githubusercontent.com/Moravio/homebrew-md-pdf/main/llm.txt
-> Version: 3.18.0
+> Version: 3.19.0
 
 md-pdf is a CLI + library that converts Markdown files into professionally
 branded PDFs with title pages, table of contents, Mermaid diagrams, syntax
@@ -71,6 +71,79 @@ library and CLI produce identical output.
 Subpath exports:
 - `@moravio/md-pdf` and `@moravio/md-pdf/api` — library entry (`render`)
 - `@moravio/md-pdf/cli` — CLI entry (rarely needed; prefer the bin)
+
+### HTML-only rendering (since 3.19.0)
+
+Produce the same HTML + inlined CSS that PDF rendering would feed to
+Puppeteer, but without launching Puppeteer. Use this when you need a
+preview surface (Electron iframe, snapshot test, server-side render)
+that visually matches the PDF without paying the Chromium startup
+cost.
+
+```js
+import { renderToHtml } from "@moravio/md-pdf";
+
+const result = await renderToHtml({
+  mdPath: "/abs/path/document.md",
+  mdContent: editorBuffer,                             // optional — render unsaved edits
+  pageFormat: "A4",                                    // optional
+  highlightTheme: "github-dark",                       // optional, default 'github'
+  urlTransform: (abs) => `mdfont://${abs}`,            // optional
+  baseHrefOverride: (baseDir) => `mdimg://_${baseDir}/`,
+                                                       // optional — function or string
+  allowMissingMeta: true,                              // optional, default true
+  previewMode: true,                                   // optional, default false
+});
+
+// result.html         — complete <!DOCTYPE html>...</html> string
+// result.inlinedCss   — concatenated CSS payload (already inside .html)
+// result.assetBaseDir — directory of the source .md (or project root if synthesized)
+// result.includedPaths — every {% include %} partial that contributed
+// result.warnings     — non-fatal include-resolution issues
+```
+
+**`previewMode`** (since 3.19.0): switches rendering into a "paper sheet"
+layout for screen preview. Body opts into `class="md-pdf-preview-mode"` and
+`data-page-format="A3|A4|A5"`. An inline preview-only stylesheet:
+- Sizes `.md-pdf-page` to the chosen format (1123 / 794 / 559 px at 96dpi),
+  with paper shadow + sheet border.
+- Splits content on `<div class="page-break"></div>` into one
+  `.md-pdf-page` per source page (Adobe-Acrobat-style stacked sheets).
+- Applies the brand's `contentMargins` as inner padding so the printable
+  area matches the eventual PDF.
+- Replaces unresolvable `{% include %}` directives with a styled
+  `.md-pdf-include-error` rectangle (with `data-spec` and `data-reason`
+  attributes) so broken includes are visible at a glance.
+
+PDF flow leaves all preview-only chrome off.
+
+**`baseHrefOverride`** accepts a string (verbatim) or a function
+`(absoluteBaseDir) => string`. The function form is called with the resolved
+asset baseDir AFTER any project-root walk-up the no-meta fallback may have
+done — pass it to ensure relative `<img src>` URLs resolve to the right
+directory.
+
+**`allowMissingMeta`** (default true for `renderToHtml`): when the sibling
+`.meta.json` is absent, walk up to find the project root and inherit
+`branding` / `language` / `brandingDir` / `typography` from there. The
+synthesized meta only overrides `title` to the partial's filename, so a
+partial opened standalone in a preview gets the parent project's
+brand-scoped CSS instead of `moravio-default`. Set `false` to require meta
+and throw `MissingMetaError` (use this for snapshot tests / strict CI).
+
+Skipped vs PDF flow (will land in subsequent versions if needed):
+- Page-frame wrapping (the per-page top/right/bottom/left margin chrome).
+- Watermark overlay (it's a position:fixed PNG; preview iframe is screen
+  media, not paginated).
+- Mermaid prerender — fenced ```mermaid blocks become
+  `<div class="mermaid">…</div>` for the host to render client-side.
+- TOC and title page (PDF needs page numbers; preview can't have them).
+
+Properties:
+- Never mutates `process.env` — safe to call concurrently with itself or
+  alongside `render()`.
+- No subprocess spawn, no Puppeteer launch.
+- Throws `MissingMetaError` only when `allowMissingMeta` is false.
 
 ### Meta validation (since 3.15.0)
 
