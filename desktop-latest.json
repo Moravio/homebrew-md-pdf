@@ -1,19 +1,19 @@
 {
-  "version": "0.5.0",
-  "tagName": "desktop-v0.5.0",
-  "publishedAt": "2026-05-06T06:58:23Z",
-  "notes": "## What's Changed\n* feat: bump md-pdf to 3.18.0 + watermark scope UI by @krata in https://github.com/Moravio/md-pdf-desktop/pull/38\n* feat: include directive UX + sibling-resource render fix by @krata in https://github.com/Moravio/md-pdf-desktop/pull/39\n* test: e2e regression for {% include %} resolution by @krata in https://github.com/Moravio/md-pdf-desktop/pull/40\n* feat: VS-Code-style tabs + headless e2e by @krata in https://github.com/Moravio/md-pdf-desktop/pull/41\n* feat: preview pane resolves {% include %} directives by @krata in https://github.com/Moravio/md-pdf-desktop/pull/42\n* fix: collapsable include preview + raw <img> assets + autolink lint by @krata in https://github.com/Moravio/md-pdf-desktop/pull/43\n* feat: high-fidelity preview via @moravio/md-pdf renderToHtml by @krata in https://github.com/Moravio/md-pdf-desktop/pull/46\n\n\n**Full Changelog**: https://github.com/Moravio/md-pdf-desktop/compare/v0.4.0...v0.5.0\n---\n\n## Installation\n\n### macOS\n\n1. Download the `.dmg` and drag **md-pdf** into `/Applications`.\n2. The first time you open it, macOS will refuse with *\"md-pdf is damaged…\"* — this app is ad-hoc signed only. Remove the quarantine flag once:\n   ```bash\n   xattr -dr com.apple.quarantine /Applications/md-pdf.app\n   ```\n3. Open it normally afterwards. Updates downloaded inside the app don't need this step.\n\n### Windows\n\nDownload the `.exe`, run it. SmartScreen may warn — choose *More info → Run anyway*.",
-  "htmlUrl": "https://github.com/Moravio/homebrew-md-pdf/releases/tag/desktop-v0.5.0",
+  "version": "0.5.1",
+  "tagName": "desktop-v0.5.1",
+  "publishedAt": "2026-05-06T07:43:13Z",
+  "notes": "## What's Changed\n* fix: upload installers directly to release (#47) by @krata in https://github.com/Moravio/md-pdf-desktop/pull/48\n\n\n**Full Changelog**: https://github.com/Moravio/md-pdf-desktop/compare/v0.5.0...v0.5.1\n---\n\n## Installation\n\n### macOS\n\n1. Download the `.dmg` and drag **md-pdf** into `/Applications`.\n2. The first time you open it, macOS will refuse with *\"md-pdf is damaged…\"* — this app is ad-hoc signed only. Remove the quarantine flag once:\n   ```bash\n   xattr -dr com.apple.quarantine /Applications/md-pdf.app\n   ```\n3. Open it normally afterwards. Updates downloaded inside the app don't need this step.\n\n### Windows\n\nDownload the `.exe`, run it. SmartScreen may warn — choose *More info → Run anyway*.",
+  "htmlUrl": "https://github.com/Moravio/homebrew-md-pdf/releases/tag/desktop-v0.5.1",
   "assets": {
     "darwin-arm64": {
-      "name": "md-pdf-0.5.0-arm64.dmg",
-      "url": "https://github.com/Moravio/homebrew-md-pdf/releases/download/desktop-v0.5.0/md-pdf-0.5.0-arm64.dmg",
-      "size": 397677627
+      "name": "md-pdf-0.5.1-arm64.dmg",
+      "url": "https://github.com/Moravio/homebrew-md-pdf/releases/download/desktop-v0.5.1/md-pdf-0.5.1-arm64.dmg",
+      "size": 397445295
     },
     "win32-x64": {
-      "name": "md-pdf Setup 0.5.0.exe",
-      "url": "https://github.com/Moravio/homebrew-md-pdf/releases/download/desktop-v0.5.0/md-pdf%20Setup%200.5.0.exe",
-      "size": 332117531
+      "name": "md-pdf Setup 0.5.1.exe",
+      "url": "https://github.com/Moravio/homebrew-md-pdf/releases/download/desktop-v0.5.1/md-pdf%20Setup%200.5.1.exe",
+      "size": 332117543
     }
   }
 }
