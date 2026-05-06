@@ -2,7 +2,7 @@
 
 > This file is designed for large language models assisting users with md-pdf.
 > Canonical URL: https://raw.githubusercontent.com/Moravio/homebrew-md-pdf/main/llm.txt
-> Version: 3.19.0
+> Version: 3.20.0
 
 md-pdf is a CLI + library that converts Markdown files into professionally
 branded PDFs with title pages, table of contents, Mermaid diagrams, syntax
@@ -93,6 +93,8 @@ const result = await renderToHtml({
                                                        // optional — function or string
   allowMissingMeta: true,                              // optional, default true
   previewMode: true,                                   // optional, default false
+  brandingOverride: "moravio-proposal",                // optional (since 3.20.0)
+  brandingDirOverride: "/path/to/brand",               // optional (since 3.20.0)
 });
 
 // result.html         — complete <!DOCTYPE html>...</html> string
@@ -352,6 +354,9 @@ Resolution rules:
 - `@<brand>/<name>` resolves to `~/.md-pdf/brands/<brand>/partials/<name>[.md]`,
   falling back to bundled `brandings/<brand>/partials/`. Override the lookup
   root with `MD_PDF_BRANDS_DIR`.
+- `@bundled/<rel>` (since 3.20.0) resolves against the md-pdf package install
+  dir — cross-platform reference to shipped examples/partials without an
+  absolute path. Example: `@bundled/examples/include/partials/o-moraviu.cs.md`.
 
 The directive must be the only content on its line (leading/trailing
 whitespace ignored); inline forms in prose or fenced code blocks are
