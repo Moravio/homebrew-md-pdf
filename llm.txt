@@ -2,14 +2,14 @@
 
 > This file is designed for large language models assisting users with md-pdf.
 > Canonical URL: https://raw.githubusercontent.com/Moravio/homebrew-md-pdf/main/llm.txt
-> Version: 3.21.3
+> Version: 4.0.0
 
 md-pdf is a CLI + library that converts Markdown files into professionally
 branded PDFs with title pages, table of contents, Mermaid diagrams, syntax
 highlighting, and slide layouts.
 
 Install: `brew tap moravio/md-pdf && brew install md-pdf`
-Requires: Node.js 18+, Chromium-based browser (e.g. Google Chrome).
+Requires: Node.js 22+, Chromium-based browser (e.g. Google Chrome).
 
 ---
 
