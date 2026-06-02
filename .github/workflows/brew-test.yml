@@ -1,0 +1,75 @@
+# Brew-native quality gate for this tap.
+#
+# Why this exists: the formula's correctness was never machine-checked. This is
+# the Homebrew-native equivalent of the upstream md-pdf repo's JS quality gates
+# (`brew style`/`brew audit` ≈ ESLint/audit for a Ruby formula). It catches
+# real defects: before this workflow landed, `brew audit --strict` flagged a
+# dependency-order offense in Formula/md-pdf.rb.
+#
+# Scope: pull_request only (+ manual dispatch). The release workflows of md-pdf
+# and md-pdf-desktop sync this repo via direct `git push` to main (formula
+# url/sha256, llm.txt, docs, desktop-latest.json) — those bot commits never open
+# a PR, so they are intentionally NOT gated here.
+#
+# FormulaAudit/StdNpmArgs is skipped via --except-cops: std_npm_args runs
+# `npm pack` against a source checkout, but this formula installs from a
+# pre-packed release tarball (`url ... using: :nounzip`), so it cannot apply.
+# (--strict is incompatible with --except-cops, hence the explicit cop list.)
+
+name: brew-test
+
+on:
+  pull_request:
+    paths:
+      - "Formula/**"
+      - "README.md"
+      - ".github/workflows/brew-test.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: brew-test-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  formula:
+    name: brew style + audit
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Expose the checked-out repo to Homebrew as the moravio/md-pdf tap so
+      # `brew audit` (which requires a formula name, not a path) can resolve it.
+      - name: Link checkout as the moravio/md-pdf tap
+        run: |
+          set -euo pipefail
+          TAP_DIR="$(brew --repository)/Library/Taps/moravio/homebrew-md-pdf"
+          rm -rf "$TAP_DIR"
+          mkdir -p "$(dirname "$TAP_DIR")"
+          ln -s "$GITHUB_WORKSPACE" "$TAP_DIR"
+
+      - name: brew style
+        run: brew style --except-cops=FormulaAudit/StdNpmArgs Formula/md-pdf.rb
+
+      - name: brew audit
+        run: brew audit --except-cops=FormulaAudit/StdNpmArgs moravio/md-pdf/md-pdf
+
+  links:
+    name: README link check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # README.md is the only hand-authored, non-synced file in this repo. It
+      # links to ~8 GitHub release assets (example PDFs) that can silently 404
+      # if an asset is renamed/removed upstream. 429 (rate-limited) is accepted
+      # so transient GitHub throttling never reddens the gate.
+      - name: Check README links
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: "--no-progress --max-retries 3 --accept 200,206,429 README.md"
+          fail: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
