@@ -22,13 +22,20 @@ class MdPdf < Formula
   sha256 "d2886f003ad93cce2f52a244c1a0d2ab1caadd0559977276f76717295c6027e8"
   license :cannot_represent
 
-  depends_on "node@22"
   depends_on arch: :arm64
+  depends_on "node@22"
 
   def install
     # Install the npm package from the downloaded tarball into a private libexec
     # tree so it does not pollute the global node_modules.
     ENV["PUPPETEER_SKIP_DOWNLOAD"] = "1"
+    # NOTE: std_npm_args is intentionally NOT used here. It calls
+    # Language::Node.pack_for_installation, which runs `npm pack` in the build
+    # directory and requires a package.json there. This formula installs from a
+    # pre-packed release tarball (see `url ... using: :nounzip`) via
+    # cached_download — the tarball is never unpacked into the build dir, so
+    # there is nothing to pack. The FormulaAudit/StdNpmArgs cop is therefore
+    # skipped via `--except-cops` in .github/workflows/brew-test.yml.
     system "npm", "install", "--prefix", libexec,
            "--production", "--no-audit", "--no-fund",
            cached_download.to_s
