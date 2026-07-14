@@ -21,6 +21,12 @@ class MdPdf < Formula
       using: :nounzip
   sha256 "d2886f003ad93cce2f52a244c1a0d2ab1caadd0559977276f76717295c6027e8"
   license :cannot_represent
+  # Packaging-only fix: the wrapper now resolves Node dynamically instead of
+  # pinning the node@22 keg path. Bump so existing installs pick it up on
+  # `brew upgrade` without a new upstream release. The release workflow only
+  # rewrites url+sha256, never this line, so remove it by hand on the next
+  # `version` bump (a lingering revision is harmless but cosmetic: e.g. 4.1.0_1).
+  revision 1
 
   depends_on arch: :arm64
   depends_on "node@22"
@@ -75,7 +81,31 @@ class MdPdf < Formula
           exit 1
         fi
 
-        exec "#{Formula["node@22"].opt_bin}/node" "#{pkg_path}/#{script}" "$@"
+        # Resolve Node — prefer explicit override, then the node@22 keg, then an
+        # unversioned keg, then PATH. The fallbacks keep the wrapper working if
+        # the node@22 keg is later upgraded away or removed (e.g. Node comes from
+        # nvm, or Homebrew moves to a newer node formula), mirroring the Chromium
+        # resolver above. The keg prefix is fixed: the formula is arm64-only.
+        NODE_BIN="${MD_PDF_NODE:-}"
+        if [ -z "$NODE_BIN" ]; then
+          for candidate in \\
+            "/opt/homebrew/opt/node@22/bin/node" \\
+            "/opt/homebrew/opt/node/bin/node" \\
+            "$(command -v node 2>/dev/null || true)"; do
+            if [ -n "$candidate" ] && [ -x "$candidate" ]; then
+              NODE_BIN="$candidate"
+              break
+            fi
+          done
+        fi
+
+        if [ -z "$NODE_BIN" ]; then
+          echo "Error: Node.js not found." >&2
+          echo "Install Node (brew install node) or set MD_PDF_NODE to a node binary." >&2
+          exit 1
+        fi
+
+        exec "$NODE_BIN" "#{pkg_path}/#{script}" "$@"
       SH
     end
   end
@@ -90,6 +120,10 @@ class MdPdf < Formula
 
       If Chrome is installed in a non-standard location, set:
         export PUPPETEER_EXECUTABLE_PATH="/path/to/chrome"
+
+      md-pdf finds Node automatically (Homebrew keg or PATH). To pin a specific
+      Node binary, set:
+        export MD_PDF_NODE="/path/to/node"
     EOS
   end
 
