@@ -60,7 +60,7 @@ Minimal **document** metadata (no email, phone, or extra lines under the client)
 
 - **`layout`**: omit or `"document"` for a standard report; `"slides"` for a slide deck (different title page, A4 landscape, different PDF merge path).
 - **`language`**: `"en"` (default) or `"cs"`. Controls the **default date** format (when **`date`** is omitted or empty), **title-page labels** (Date, Author, Client, Presentation, …), and the **table of contents** heading (`Contents` vs `Obsah`).
-- **`pagination`**: optional boolean, default **`true`**. Set **`false`** to turn off **automatic** slide breaks in **`slides`** layout (content flows like a continuous document; manual `<div class="page-break"></div>` still works). In **`slides`** layout with **`false`**, the merged PDF has **no footer** (no **“n / total”** page strip or eagle logo). With **`false`**, the content PDF uses a **slightly smaller bottom margin** so the body can extend a bit lower. **`document`** layout keeps the usual footer; only the bottom-margin tweak applies when **`pagination`** is **`false`**.
+- **`pagination`**: optional boolean, default **`true`**. Set **`false`** to drop the merged PDF footer in either layout (no **“n / total”** page strip or eagle logo) and use a **slightly smaller bottom margin** so the body can extend a bit lower. In **`document`** layout, the generated TOC keeps its links but omits page numbers. In **`slides`** layout, it also turns off **automatic** slide breaks (content flows like a continuous document; manual `<div class="page-break"></div>` still works).
 - **`titlePage`**: optional boolean, default **`true`**. Set **`false`** to **skip the title page entirely**. The PDF starts directly with the content. Branding CSS, TOC, and page numbering still work — page numbers start from 1 on the first content page. Useful for short documents, appendices, or when the title is included directly in the Markdown.
 - **`hideDate`**: optional boolean, default **`false`**. Set **`true`** to **drop the Date row** from the document title meta grid and the **Date column** from the slides title footer. The **`date`** field is still computed (and used in any other consumer of the meta), it just isn't rendered on the title sheet. Intended for **storybook-style covers** where a printed date is out of place. Empty **`author`** / **`client`** values are auto-skipped on the document title meta grid as well, so a cover with only a title and subtitle keeps placeholder labels off.
 - **`blankPageAfterTitle`**: optional boolean, default **`false`**. Set **`true`** to insert an empty (unnumbered) leaf immediately after the title page, before the TOC / body. Intended for **booklet duplex printing** so the back of the title sheet stays blank rather than carrying the TOC / first body page. The blank leaf inherits the title's exact paper geometry, has no footer, and is excluded from the displayed pagination — `pagination`, when on, restarts at **`1`** on the first content page (the displayed total likewise excludes both title and blank). Ignored when **`titlePage`** is **`false`** (no title to follow).
@@ -255,17 +255,17 @@ Since v3.7.0 md-pdf runs the Markdown source through a small typography rule tab
 
 ## Layout, pagination, and TOC at a glance
 
-| Layout     | `titlePage` | `pagination` | `toc`   | Auto slide breaks | Page footer (n/total + mark) | TOC generated | Bottom margin    |
-| ---------- | ----------- | ------------ | ------- | ----------------- | ---------------------------- | ------------- | ---------------- |
-| `document` | `true`      | `true`       | `true`  | n/a               | Yes (from p.2)               | Yes           | Standard         |
-| `document` | `true`      | `true`       | `false` | n/a               | Yes (from p.2)               | No            | Standard         |
-| `document` | `false`     | `true`       | `true`  | n/a               | Yes (from p.1)               | Yes           | Standard         |
-| `document` | `false`     | `true`       | `false` | n/a               | Yes (from p.1)               | No            | Standard         |
-| `document` | any         | `false`      | `true`  | n/a               | Yes                          | Yes           | Slightly smaller |
-| `document` | any         | `false`      | `false` | n/a               | Yes                          | No            | Slightly smaller |
-| `slides`   | `true`      | `true`       | n/a     | Yes               | Yes                          | No            | Standard         |
-| `slides`   | `false`     | `true`       | n/a     | Yes               | Yes (from p.1)               | No            | Standard         |
-| `slides`   | any         | `false`      | n/a     | No                | No                           | No            | Slightly smaller |
+| Layout     | `titlePage` | `pagination` | `toc`   | Auto slide breaks | Page footer (n/total + mark) | TOC generated         | Bottom margin    |
+| ---------- | ----------- | ------------ | ------- | ----------------- | ---------------------------- | --------------------- | ---------------- |
+| `document` | `true`      | `true`       | `true`  | n/a               | Yes (from p.2)               | Yes                   | Standard         |
+| `document` | `true`      | `true`       | `false` | n/a               | Yes (from p.2)               | No                    | Standard         |
+| `document` | `false`     | `true`       | `true`  | n/a               | Yes (from p.1)               | Yes                   | Standard         |
+| `document` | `false`     | `true`       | `false` | n/a               | Yes (from p.1)               | No                    | Standard         |
+| `document` | any         | `false`      | `true`  | n/a               | No                           | Yes (no page numbers) | Slightly smaller |
+| `document` | any         | `false`      | `false` | n/a               | No                           | No                    | Slightly smaller |
+| `slides`   | `true`      | `true`       | n/a     | Yes               | Yes                          | No                    | Standard         |
+| `slides`   | `false`     | `true`       | n/a     | Yes               | Yes (from p.1)               | No                    | Standard         |
+| `slides`   | any         | `false`      | n/a     | No                | No                           | No                    | Slightly smaller |
 
 ### Simple mode (no `.meta.json`)
 

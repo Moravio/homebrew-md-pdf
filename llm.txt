@@ -2,7 +2,7 @@
 
 > This file is designed for large language models assisting users with md-pdf.
 > Canonical URL: https://raw.githubusercontent.com/Moravio/homebrew-md-pdf/main/llm.txt
-> Version: 4.0.0
+> Version: 4.1.0
 
 md-pdf is a CLI + library that converts Markdown files into professionally
 branded PDFs with title pages, table of contents, Mermaid diagrams, syntax
@@ -216,7 +216,7 @@ TOC, or pagination. When present, full branding and layout features are enabled.
 | `customFields` | object  | —                  | Label → value pairs rendered below client on title page    |
 | `titlePage`    | boolean | `true`             | Set `false` to skip the title page entirely                |
 | `blankPageAfterTitle` | boolean | `false`     | Insert an unnumbered blank leaf after the title (booklet duplex printing). Pagination, when on, restarts at `1` on the first content page; total excludes title + blank. Ignored when `titlePage: false`. |
-| `pagination`   | boolean | `true`             | Page numbers and auto slide breaks                         |
+| `pagination`   | boolean | `true`             | Page-number footer in both layouts; auto slide breaks in slides only. `false` removes the footer, disables those breaks, and makes generated document TOCs link-only (no page numbers). |
 | `toc`          | boolean / int / object | `true` | Table of contents (document layout only). Accepts `true`/`false`, an integer 1–6 (shorthand for `{minHeadingLevel: 1, maxHeadingLevel: N}`), or `{minHeadingLevel?, maxHeadingLevel?}` (each in 1–6, min ≤ max). Default range is H1–H3. Use `{minHeadingLevel: 2}` to skip H1 if you treat it as a title. |
 | `branding`     | string  | `"moravio-default"`| Built-in branding id                                       |
 | `brandingDir`  | string  | —                  | Path to external branding folder (overrides `branding`)    |
@@ -286,7 +286,7 @@ TOC, or pagination. When present, full branding and layout features are enabled.
 ### Document layout (`"layout": "document"`)
 - A4 portrait
 - Title page → Table of contents → Body content
-- Page numbers and footer logo on every page (except title page)
+- With `"pagination": true` (default), page numbers and footer logo on every page except the title page; `false` removes the footer, uses a slightly smaller bottom margin, and leaves generated TOCs link-only without page numbers
 - TOC auto-generated from `#`, `##`, `###` headings by default. Disable with
   `"toc": false`; widen with `"toc": 4` (shorthand for H1–H4) or
   `"toc": {"minHeadingLevel": 2, "maxHeadingLevel": 4}` for an explicit range
@@ -685,7 +685,7 @@ uniformly to every rule.
 | `document` | `true`    | `true`     | `true`  | n/a         | Yes      | Yes       |
 | `document` | `true`    | `true`     | `false` | n/a         | Yes      | No        |
 | `document` | `false`   | `true`     | `true`  | n/a         | Yes      | Yes       |
-| `document` | any       | `false`    | any     | n/a         | Yes      | as set    |
+| `document` | any       | `false`    | any     | n/a         | No       | as set; generated TOC has no page numbers |
 | `slides`   | `true`    | `true`     | n/a     | Yes         | Yes      | No        |
 | `slides`   | any       | `false`    | n/a     | No          | No       | No        |
 
@@ -796,7 +796,7 @@ Wrap-up slide (auto break before this ##).
 | Spell check false positives | Add words to `"dictionary"` array in `.meta.json` |
 | Custom brand not working | Run `md-pdf-branding-check ./path` to validate |
 | Page break not working | Use exactly `<div class="page-break"></div>` on its own line |
-| Slides have no page numbers | Set `"pagination": true` in `.meta.json` |
+| PDF has no page numbers | Set `"pagination": true` in `.meta.json` |
 
 ---
 
