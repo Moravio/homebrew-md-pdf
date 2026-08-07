@@ -21,12 +21,10 @@ class MdPdf < Formula
       using: :nounzip
   sha256 "50dfd0148156ff6156239ecb7b5093f373e58befc5df942c844d1cc722274c84"
   license :cannot_represent
-  # Packaging-only fix: the wrapper now resolves Node dynamically instead of
-  # pinning the node@22 keg path. Bump so existing installs pick it up on
-  # `brew upgrade` without a new upstream release. The release workflow only
-  # rewrites url+sha256, never this line, so remove it by hand on the next
-  # `version` bump (a lingering revision is harmless but cosmetic: e.g. 4.1.0_1).
-  revision 1
+  # NOTE: `revision` is for packaging-only fixes that must reach existing
+  # installs without a new upstream release. The release workflow rewrites only
+  # url+sha256, never this line, so delete it by hand on the next `version`
+  # bump — otherwise it lingers as a cosmetic suffix (e.g. 4.1.0_1).
 
   depends_on arch: :arm64
   depends_on "node@22"
