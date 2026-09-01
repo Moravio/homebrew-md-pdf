@@ -474,4 +474,10 @@ node ./convert-to-pdf.js examples/slides/sample-slides.md
 - **`examples/document/no-title-page.md`** — document with `"titlePage": false` (no title page, TOC and pagination still active).
 - **`examples/simple/simple-document.md`** — Markdown without `.meta.json` (simple mode — no title page, TOC, or pagination).
 
-Default output is `<basename>.pdf` next to the input `.md`.
+With no output path given, md-pdf writes `<basename>.pdf` into the **current working
+directory**, not next to the input `.md` — so the commands above drop their PDFs in the
+directory you ran them from. Pass a second argument to choose the destination:
+
+```bash
+node ./convert-to-pdf.js examples/document/sample-document.md examples/document/sample-document.pdf
+```
