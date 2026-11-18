@@ -2,7 +2,7 @@
 
 > This file is designed for large language models assisting users with md-pdf.
 > Canonical URL: https://raw.githubusercontent.com/Moravio/homebrew-md-pdf/main/llm.txt
-> Version: 4.1.3
+> Version: 4.2.0
 
 md-pdf is a CLI + library that converts Markdown files into professionally
 branded PDFs with title pages, table of contents, Mermaid diagrams, syntax
@@ -30,6 +30,7 @@ Options:
 - `--watch`       — watch .md and .meta.json for changes, regenerate on save
 - `--spellcheck`  — run spell check before PDF generation (language from .meta.json)
 - `--page-format <fmt>` — override page size: `A3`, `A4`, `A5` (CLI > meta.json > branding default)
+- `--font <family>` — override the text font, e.g. `--font Inter` (CLI > meta.json `font` > branding font)
 
 Other commands:
 - `md-pdf-init <outDir> [--template=proposal] [--lang=cs|en|both]`
@@ -218,9 +219,10 @@ TOC, or pagination. When present, full branding and layout features are enabled.
 | `blankPageAfterTitle` | boolean | `false`     | Insert an unnumbered blank leaf after the title (booklet duplex printing). Pagination, when on, restarts at `1` on the first content page; total excludes title + blank. Ignored when `titlePage: false`. |
 | `pagination`   | boolean | `true`             | Page-number footer in both layouts; auto slide breaks in slides only. `false` removes the footer, disables those breaks, and makes generated document TOCs link-only (no page numbers). |
 | `toc`          | boolean / int / object | `true` | Table of contents (document layout only). Accepts `true`/`false`, an integer 1–6 (shorthand for `{minHeadingLevel: 1, maxHeadingLevel: N}`), or `{minHeadingLevel?, maxHeadingLevel?}` (each in 1–6, min ≤ max). Default range is H1–H3. Use `{minHeadingLevel: 2}` to skip H1 if you treat it as a title. |
-| `branding`     | string  | `"moravio-default"`| Built-in branding id                                       |
+| `branding`     | string  | `"moravio-default"`| Built-in branding id: `moravio-default` (2026 brand), `moravio-proposal`, `duckbyte-advisory`, `moravio-legacy` / `moravio-proposal-legacy` (pre-2026 look) |
 | `brandingDir`  | string  | —                  | Path to external branding folder (overrides `branding`)    |
 | `pageFormat`   | string  | `"A4"`             | Page size: `A3`, `A4`, `A5`. Single-valued for the whole document — title page always matches body format. CLI `--page-format` wins. |
+| `font`         | string  | branding font      | Text font family, e.g. `"Inter"`, put in front of the brand's sans stack (body, headings, TOC, and title-page styles that use `var(--brand-font-sans)`). `moravio-default` and `moravio-proposal` bundle `"Schibsted Grotesk"` (default), `"Inter"`, `"IBM Plex Mono"`; other names and other brands need the font installed. CLI `--font` wins. |
 
 ### Branding-level options (set in `branding.json`, not in `.meta.json`)
 
@@ -230,6 +232,7 @@ TOC, or pagination. When present, full branding and layout features are enabled.
 | `titlePage.<layout>.decorationInside` | boolean | When `true`, the brand decoration is placed inside the title container/outer wrapper. Use for tall portrait illustrations that would otherwise overflow to a second sheet. |
 | `footer.fontRegular`  | string | Path to a TTF (relative to branding.json). Used to embed the page-number footer instead of Helvetica.                                                                              |
 | `toc.fontRegular` / `toc.fontBold` | string | Path to a TTF (relative to branding.json). Embed in the rendered TOC overlay so chapter/page text matches the brand body font. |
+| `mermaid`             | object | `{ "theme": "base", "themeVariables": { "primaryColor": "#f1f2f4", … } }` themes every Mermaid diagram (`theme`: `base` (default), `default`, `neutral`, `dark`, `forest`). With it, diagram labels use `fonts.sansStack` (so `font`/`--font` reach diagrams). Absent → Mermaid's stock theme. Per-diagram front matter still overrides. |
 | `watermark`    | object  | —                  | Text watermark config (or `false` to disable brand default)|
 | `dictionary`   | array   | —                  | Extra words for `--spellcheck`                             |
 
@@ -444,6 +447,10 @@ gantt
 
 Gantt month labels are automatically localized based on `language` in .meta.json.
 
+Diagram colors and the label font come from the brand's `mermaid` block in
+`branding.json` (the Moravio brands: grey nodes, red accents, brand font);
+brands without it use Mermaid's stock theme.
+
 ---
 
 ## CSS utility classes
@@ -513,6 +520,7 @@ contain a `branding.json`; scaffold one with
 | `toc`            | Table of contents styling (margins, colors, typography)        |
 | `titlePage`      | `document`/`slides` layout with inline style strings           |
 | `watermark`      | Optional brand-wide default watermark (overridable per-doc)    |
+| `mermaid`        | Optional Mermaid `theme` + `themeVariables` for all diagrams   |
 
 The title page loads the generated `brand-vars.css` (same as content pages),
 so `@font-face` rules from `fontCssDocument` / `fontCssSlides` apply there
