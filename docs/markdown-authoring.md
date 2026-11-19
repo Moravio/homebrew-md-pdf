@@ -52,11 +52,13 @@ Minimal **document** metadata (no email, phone, or extra lines under the client)
 }
 ```
 
+No fields are required within the metadata object. Omitted **`title`** defaults to an empty string, **`layout`** to **`"document"`**, and **`language`** to **`"en"`**. Invalid types or values fail validation.
+
 **`date` is optional.** You can omit the `date` key entirely or set `"date": ""`. In both cases the pipeline uses **today’s date** on the title page, formatted according to **`language`** (`en` → long English date, `cs` → e.g. `27. března 2026`).
 
 - **`email`**: optional. When set, it appears on the author line as a `mailto:` link. When omitted or empty, no email segment is shown (no stray `/`).
 - **`phoneNumber`**: optional. When set, it appears after the author name and optional email, separated by **`/`**, as a `tel:` link. Omitted segments are skipped so you never get empty slashes.
-- **`customFields`**: optional object whose **keys** are label text and **values** are plain text. Entries are rendered **below the client** on the title page, one per line, using the same label styling as **Client** (document) or stacked blocks (slides). Keys should be strings; values are stringified. Empty keys or values are skipped. If `customFields` is not a plain object (e.g. an array), it is ignored and a warning is printed. In **`document`** layout, date/author/client/custom rows share a **two-column grid**: the label column is at least the **`width`** set in **`titlePage.document.labelStyle`** in **`branding.json`** (often 80px) and **expands** if a label (including a long **`customFields`** key) needs more room, so values stay aligned and do not overlap the label.
+- **`customFields`**: optional object whose **keys** are label text and **values** are plain text. Entries are rendered **below the client** on the title page, one per line, using the same label styling as **Client** (document) or stacked blocks (slides). Object values must be strings; non-string values fail metadata validation. Keys and values are trimmed, and entries with empty keys or values are dropped. The validator also accepts an array of `{ "label": "…", "value": "…" }` string pairs, but title-page setup warns and ignores arrays. Other shapes fail validation. In **`document`** layout, date/author/client/custom rows share a **two-column grid**: the label column is at least the **`width`** set in **`titlePage.document.labelStyle`** in **`branding.json`** (often 80px) and **expands** if a label (including a long **`customFields`** key) needs more room, so values stay aligned and do not overlap the label.
 
 - **`layout`**: omit or `"document"` for a standard report; `"slides"` for a slide deck (different title page, A4 landscape, different PDF merge path).
 - **`language`**: `"en"` (default) or `"cs"`. Controls the **default date** format (when **`date`** is omitted or empty), **title-page labels** (Date, Author, Client, Presentation, …), and the **table of contents** heading (`Contents` vs `Obsah`).
@@ -67,11 +69,12 @@ Minimal **document** metadata (no email, phone, or extra lines under the client)
 - **`toc`**: optional, default **`true`** (H1–H3). Controls the auto-generated table of contents in **`document`** layout. Ignored for **`slides`**. Page footers (**`n / total`** + brand mark) behave like the normal document merge. Three accepted forms:
   - **`true`** / **`false`** — enable (H1–H3, default range) or skip the TOC entirely. Skipping bypasses the TOC pages and the measurement pass.
   - **integer 1–6** — shorthand for **`{ "minHeadingLevel": 1, "maxHeadingLevel": N }`**. For example, **`"toc": 4`** includes H1 through H4.
-  - **object** **`{ "minHeadingLevel": <1–6>?, "maxHeadingLevel": <1–6>? }`** — explicit range. **`minHeadingLevel`** defaults to **`1`**, **`maxHeadingLevel`** to **`3`**. **`min` ≤ `max`** is enforced. Use **`{ "minHeadingLevel": 2 }`** when your **`#`** heading acts as a page-internal title and you don't want it in the outline.
-- **`branding`**: optional string id, default **`moravio-default`**. Must match a folder `brandings/<id>/` **inside the installed package** with **`branding.json`** plus assets. Ignored when **`brandingDir`** is set. See **Branding** below.
-- **`brandingDir`**: optional string path to a **folder** that contains **`branding.json`** (and the SVG assets listed there). Resolved relative to the **directory of your `.meta.json`** file (not the shell’s current working directory). Absolute paths are allowed. When present, **`branding`** is ignored — use this from **another repository** so your brand is **not** stored under **`node_modules`**. See **External branding (consumer projects)** below.
+  - **object** **`{ "minHeadingLevel": <1–6>?, "maxHeadingLevel": <1–6>? }`** — explicit range. **`minHeadingLevel`** defaults to **`1`**, **`maxHeadingLevel`** to **`3`**; **`{}`** uses H1–H3. When both bounds are supplied, **`minHeadingLevel` ≤ `maxHeadingLevel`** is enforced. With only **`minHeadingLevel`** above **`3`**, the resolved maximum is raised to that minimum. Unknown keys (including **`min`** / **`max`**) fail validation. Use **`{ "minHeadingLevel": 2 }`** when your **`#`** heading acts as a page-internal title and you don't want it in the outline.
+- **`branding`**: optional string id, default **`moravio-default`**. Resolves first in the user brands directory, then in `brandings/<id>/` **inside the installed package**, with **`branding.json`** plus assets. Ignored when **`brandingDir`** is non-empty after trimming. See **Branding** below.
+- **`brandingDir`**: optional string path to a **folder** that contains **`branding.json`** (and the SVG assets listed there). Resolved relative to the **directory of your `.meta.json`** file (not the shell’s current working directory). Absolute paths are allowed. When non-empty after trimming, **`branding`** is ignored — use this from **another repository** so your brand is **not** stored under **`node_modules`**. See **External branding (consumer projects)** below.
 - **`pageFormat`**: optional string, one of **`A3`**, **`A4`** (default), **`A5`**. **Single-valued for the whole document** — the title page always renders at the same paper size as the body. A brand that pins **`titlePage.pdfOptions.format`** in **`branding.json`** is silently overridden so the cover can't end up on a different sheet than the body. Unknown values fail fast with a clear error. Equivalent CLI flag: **`--page-format <fmt>`** — the CLI flag wins over the meta-level field.
 - **`font`**: optional string, a font family name such as **`"Inter"`**. It goes in front of the brand's **`fonts.sansStack`**, so body text, headings, the TOC, and title-page styles that read **`var(--brand-font-sans)`** switch together (the Moravio brands do; a brand that hard-codes a family in its **`titlePage`** styles keeps it on the cover). **`moravio-default`** and **`moravio-proposal`** load every bundled family — **`"Schibsted Grotesk"`** (their default), **`"Inter"`**, **`"IBM Plex Mono"`** — so these switch offline with no other change; any other name falls back to a font of that name installed on the machine. Letters, digits, spaces, **`.`**, **`_`**, and **`-`** only. Equivalent CLI flag: **`--font <family>`** — the CLI flag wins over the meta-level field.
+- **`dictionary`**: optional array of strings for **`--spellcheck`**. Read from **`.meta.json`** only, not **`branding.json`**.
 
 ### Branding-level options (set in `branding.json`, not in `.meta.json`)
 
@@ -102,10 +105,13 @@ For brands you reuse across many projects, install them under **`~/.md-pdf/brand
 { "branding": "my-brand" }
 ```
 
-Resolution order for **`branding: "<id>"`**:
+Resolution order:
 
-1. **`~/.md-pdf/brands/<id>/`** (user-installed) — takes precedence; lets you shadow a built-in like **`moravio-default`** without forking.
-2. Bundled **`<package>/brandings/<id>/`** — fallback.
+1. Non-empty **`brandingDir`** (trimmed), resolved relative to the **`.meta.json`** directory; absolute paths are allowed. It overrides **`branding`**. An invalid directory fails without falling back to an id.
+2. Otherwise, use the trimmed **`branding`** id (missing or empty → **`moravio-default`**): **`~/.md-pdf/brands/<id>/`** (user-installed) — takes precedence; lets you shadow a built-in like **`moravio-default`** without forking.
+3. Bundled **`<package>/brandings/<id>/`** — fallback when the user directory has no **`branding.json`**. Invalid user branding fails instead of falling back.
+
+After loading the brand, the font override is **`--font`** → **`.meta.json` `font`** → brand **`fonts.sansStack`**. The CLI has no **`--branding`** flag; select the brand in metadata.
 
 Override the user dir with the **`MD_PDF_BRANDS_DIR`** env var (useful for tests, CI, or project-scoped overrides). Each user brand folder must contain a **`branding.json`** plus the assets it references; scaffold one with **`npx md-pdf-branding-init ~/.md-pdf/brands/my-brand`**.
 
@@ -121,7 +127,7 @@ Use this when you depend on **`@moravio/md-pdf`** from Git in **your own repo** 
 
    Or run **`md-pdf-branding-init`** via an npm script so `node_modules/.bin` is on `PATH`.
 
-2. **Edit** **`branding.json`**, **`logo.svg`**, **`decoration.svg`**, **`footer-mark.svg`**. The init template copies every font the template names (the font CSS, the files it loads, the TTFs behind **`toc.fontRegular`** / **`footer.fontRegular`**, and the OFL licence texts next to them) into **`fonts/`** in the new brand, so the scaffold renders offline. If you switch to another family, update **`fonts.fontCssDocument`** / **`fonts.fontCssSlides`** and adjust **`toc.fontRegular`** / **`fontBold`** and **`footer.fontRegular`** accordingly. The template also brings **`brand.css`** (listed in **`extraCss`**) with the heading, list-marker, and table-header refinements; delete it and the **`extraCss`** entry if you do not want them. The older **`googleImport…`** keys still work as a deprecated fallback, but **`md-pdf-branding-check`** warns when they are the active source.
+2. **Edit** **`branding.json`**, **`logo.svg`**, **`decoration.svg`**, **`footer-mark.svg`**. The init template copies every font the template names (the font CSS, the files it loads, the TTFs behind **`toc.fontRegular`** / **`footer.fontRegular`**, and the OFL licence texts next to them) into **`fonts/`** in the new brand, so the scaffold renders offline. If you switch to another family, update **`fonts.fontCssDocument`** / **`fonts.fontCssSlides`** and adjust **`fonts.sansStack`** and **`footer.fontRegular`** accordingly; **`toc.fontRegular`** / **`fontBold`** are unused by the Chromium TOC. The template also brings **`brand.css`** (listed in **`extraCss`**) with the heading, list-marker, and table-header refinements; delete it and the **`extraCss`** entry if you do not want them. The older **`googleImport…`** keys still work as a deprecated fallback, but **`md-pdf-branding-check`** warns when they are the active source.
 
 3. **Validate** before building PDFs:
 
@@ -254,7 +260,7 @@ Since v3.7.0 md-pdf runs the Markdown source through a small typography rule tab
 }
 ```
 
-`preserve: true` bypasses the entire pipeline. `disable` accepts an array of rule ids (currently only `em-dash`). Unknown ids are warned about and ignored — they will not break the build. Invalid shapes (`preserve` not boolean, `disable` not an array of strings) fall back to defaults with a warning.
+`preserve: true` bypasses the entire pipeline. `disable` accepts an array of rule ids (currently only `em-dash`). Unknown rule ids and invalid shapes (non-object `typography`, `preserve` not boolean, `disable` not an array of strings) fail metadata validation: conversion throws and the CLI exits non-zero. Unknown properties inside `typography` are ignored.
 
 **Examples** demonstrating the feature:
 

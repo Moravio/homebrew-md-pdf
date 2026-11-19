@@ -2,7 +2,7 @@
 
 > This file is designed for large language models assisting users with md-pdf.
 > Canonical URL: https://raw.githubusercontent.com/Moravio/homebrew-md-pdf/main/llm.txt
-> Version: 4.2.0
+> Version: 4.2.1
 
 md-pdf is a CLI + library that converts Markdown files into professionally
 branded PDFs with title pages, table of contents, Mermaid diagrams, syntax
@@ -195,13 +195,16 @@ TOC, or pagination. When present, full branding and layout features are enabled.
 
 ## Metadata (.meta.json)
 
-### Required fields
+### Core fields (optional)
 
 | Field      | Type   | Description                           |
 |------------|--------|---------------------------------------|
-| `title`    | string | Document title (shown on title page)  |
-| `layout`   | string | `"document"` or `"slides"`            |
-| `language` | string | `"en"` or `"cs"`                      |
+| `title`    | string | Document title (shown on title page); defaults to `""` |
+| `layout`   | string | `"document"` (default) or `"slides"` |
+| `language` | string | `"en"` (default) or `"cs"`; case-insensitive, `"cz"` aliases `"cs"`, empty string selects `"en"` |
+
+No fields are required within the metadata object. Invalid types or values for
+these fields fail validation; omission uses the defaults above.
 
 ### Optional fields
 
@@ -214,15 +217,16 @@ TOC, or pagination. When present, full branding and layout features are enabled.
 | `phoneNumber`  | string  | —                  | Contact phone (shown on title page as tel link)            |
 | `date`         | string  | today's date       | Explicit date string; localized by `language` when omitted |
 | `hideDate`     | boolean | `false`            | Drop the Date row from the document title meta grid and the Date column from the slides title footer. For storybook covers where a printed date is out of place. |
-| `customFields` | object  | —                  | Label → value pairs rendered below client on title page    |
+| `customFields` | object  | —                  | String label → string value pairs rendered below client on title page; keys and values are trimmed, empty entries dropped. Non-string values fail validation. Arrays of `{label, value}` strings pass validation but are warned about and ignored by title-page setup.    |
 | `titlePage`    | boolean | `true`             | Set `false` to skip the title page entirely                |
 | `blankPageAfterTitle` | boolean | `false`     | Insert an unnumbered blank leaf after the title (booklet duplex printing). Pagination, when on, restarts at `1` on the first content page; total excludes title + blank. Ignored when `titlePage: false`. |
 | `pagination`   | boolean | `true`             | Page-number footer in both layouts; auto slide breaks in slides only. `false` removes the footer, disables those breaks, and makes generated document TOCs link-only (no page numbers). |
-| `toc`          | boolean / int / object | `true` | Table of contents (document layout only). Accepts `true`/`false`, an integer 1–6 (shorthand for `{minHeadingLevel: 1, maxHeadingLevel: N}`), or `{minHeadingLevel?, maxHeadingLevel?}` (each in 1–6, min ≤ max). Default range is H1–H3. Use `{minHeadingLevel: 2}` to skip H1 if you treat it as a title. |
-| `branding`     | string  | `"moravio-default"`| Built-in branding id: `moravio-default` (2026 brand), `moravio-proposal`, `duckbyte-advisory`, `moravio-legacy` / `moravio-proposal-legacy` (pre-2026 look) |
-| `brandingDir`  | string  | —                  | Path to external branding folder (overrides `branding`)    |
+| `toc`          | boolean / int / object | `true` | Table of contents (document layout only). Accepts `true`/`false`, an integer 1–6 (shorthand for `{minHeadingLevel: 1, maxHeadingLevel: N}`), or `{minHeadingLevel?, maxHeadingLevel?}` (only these keys; each an integer in 1–6; min ≤ max when both supplied). Omitted bounds default to 1 / 3; a lone min above 3 raises the resolved max to match. `{}` uses H1–H3. Use `{minHeadingLevel: 2}` to skip H1 if you treat it as a title. |
+| `branding`     | string  | `"moravio-default"`| Brand id (user brands directory before bundled `brandings/<id>/`): `moravio-default` (2026 brand), `moravio-proposal`, `duckbyte-advisory`, `moravio-legacy` / `moravio-proposal-legacy` (pre-2026 look) |
+| `brandingDir`  | string  | —                  | Path to external branding folder, relative to `.meta.json` (overrides `branding` when non-empty after trimming)    |
 | `pageFormat`   | string  | `"A4"`             | Page size: `A3`, `A4`, `A5`. Single-valued for the whole document — title page always matches body format. CLI `--page-format` wins. |
 | `font`         | string  | branding font      | Text font family, e.g. `"Inter"`, put in front of the brand's sans stack (body, headings, TOC, and title-page styles that use `var(--brand-font-sans)`). `moravio-default` and `moravio-proposal` bundle `"Schibsted Grotesk"` (default), `"Inter"`, `"IBM Plex Mono"`; other names and other brands need the font installed. CLI `--font` wins. |
+| `dictionary`   | string[] | — | Extra words for `--spellcheck`; read only from `.meta.json` |
 
 ### Branding-level options (set in `branding.json`, not in `.meta.json`)
 
@@ -231,10 +235,9 @@ TOC, or pagination. When present, full branding and layout features are enabled.
 | `pageBackground`      | string | CSS color (`"#fbf6ed"`, `"rgb(...)"`). Filled on every printed sheet via fixed-position body::before so multi-page overflow stays opaque. Use when the brand has a non-white page. Title page is full-bleed too — title pdf margin is moved to body padding when set. |
 | `titlePage.<layout>.decorationInside` | boolean | When `true`, the brand decoration is placed inside the title container/outer wrapper. Use for tall portrait illustrations that would otherwise overflow to a second sheet. |
 | `footer.fontRegular`  | string | Path to a TTF (relative to branding.json). Used to embed the page-number footer instead of Helvetica.                                                                              |
-| `toc.fontRegular` / `toc.fontBold` | string | Path to a TTF (relative to branding.json). Embed in the rendered TOC overlay so chapter/page text matches the brand body font. |
+| `toc.fontRegular` / `toc.fontBold` | string | Compatibility paths; unused by the HTML/Chromium TOC. TOC text uses the CSS document sans stack: Schibsted Grotesk for `moravio-default` / `moravio-proposal`, Inter for `moravio-legacy` / `moravio-proposal-legacy` / `duckbyte-advisory`. `font` / `--font` overrides apply. |
 | `mermaid`             | object | `{ "theme": "base", "themeVariables": { "primaryColor": "#f1f2f4", … } }` themes every Mermaid diagram (`theme`: `base` (default), `default`, `neutral`, `dark`, `forest`). With it, diagram labels use `fonts.sansStack` (so `font`/`--font` reach diagrams). Absent → Mermaid's stock theme. Per-diagram front matter still overrides. |
 | `watermark`    | object  | —                  | Text watermark config (or `false` to disable brand default)|
-| `dictionary`   | array   | —                  | Extra words for `--spellcheck`                             |
 
 ### Minimal document example
 
@@ -663,9 +666,9 @@ Or granularly:
 | `disable`  | string[] (ids)    | `[]`    | Disable specific rules by id                 |
 
 Invalid shapes (non-object root, non-boolean `preserve`, non-string-array
-`disable`) are warned about and ignored (graceful — normalization is a
-polish feature, not a blocker). Unknown rule ids in `disable` are warned
-about and skipped.
+`disable`) and unknown rule ids in `disable` fail metadata validation.
+Conversion throws and the CLI exits non-zero. Unknown properties inside the
+`typography` object are ignored.
 
 **When to opt out:** rarely. Em-dash normalization is desirable for
 client-facing output. Opt out only when the em-dash carries semantic
