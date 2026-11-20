@@ -9,7 +9,12 @@ branded PDFs with title pages, table of contents, Mermaid diagrams, syntax
 highlighting, and slide layouts.
 
 Install: `brew tap moravio/md-pdf && brew install md-pdf`
-Requires: Node.js 22+, Chromium-based browser (e.g. Google Chrome).
+Install on Linux without Homebrew (re-run to update):
+`PUPPETEER_SKIP_DOWNLOAD=1 npm install -g --prefer-online https://github.com/Moravio/homebrew-md-pdf/releases/latest/download/moravio-md-pdf.tgz`
+Requires: Node.js 22+, Chromium-based browser (e.g. Google Chrome). Set
+`PUPPETEER_EXECUTABLE_PATH` when the browser is not in a standard macOS location; on
+Linux ARM64 Puppeteer cannot download Chrome, so use the distro `chromium` package or
+Playwright's ARM64 Chromium (`npx playwright install --with-deps chromium`).
 
 ---
 

@@ -42,6 +42,38 @@ Requires a Chromium-based browser for PDF rendering:
 brew install --cask google-chrome
 ```
 
+### Linux (without Homebrew)
+
+Every release also ships a version-less tarball, so one fixed URL always points to the
+latest version. Install it with npm (Node.js 22+):
+
+```bash
+PUPPETEER_SKIP_DOWNLOAD=1 npm install -g --prefer-online \
+  https://github.com/Moravio/homebrew-md-pdf/releases/latest/download/moravio-md-pdf.tgz
+```
+
+Run the same command again to update. If `npm install -g` needs `sudo`, set a user
+prefix first (`npm config set prefix ~/.npm-global` and add `~/.npm-global/bin` to
+`PATH`) rather than installing as root.
+
+md-pdf needs a Chromium binary. Point it at one with `PUPPETEER_EXECUTABLE_PATH`:
+
+```bash
+# Debian: sudo apt-get install chromium
+export PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
+```
+
+On **ARM64 (aarch64)**, Puppeteer has no Chrome build to download. Use the distro's
+`chromium` package, or the ARM64 Chromium that Playwright ships:
+
+```bash
+npx -y playwright install --with-deps chromium
+export PUPPETEER_EXECUTABLE_PATH=$(ls -d ~/.cache/ms-playwright/chromium-*/chrome-linux*/chrome | sort -V | tail -1)
+```
+
+Put the `export` line in your shell profile. For emoji and common fallback fonts, install
+`fonts-noto-color-emoji` and `fonts-liberation`.
+
 ## Quick start
 
 ### 1. Create your document
@@ -177,3 +209,6 @@ No manual steps needed in the **homebrew-md-pdf** repo — everything is publish
 brew update
 brew upgrade md-pdf
 ```
+
+On Linux without Homebrew, re-run the `npm install -g` command from
+[Linux (without Homebrew)](#linux-without-homebrew).
